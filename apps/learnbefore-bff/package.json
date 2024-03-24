@@ -6,7 +6,7 @@
   "scripts": {
     "build": "npx tsc",
     "preview": "node dist/index.js",
-    "dev": "nodemon src/index.ts"
+    "dev": "nodemon api/index.ts"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
