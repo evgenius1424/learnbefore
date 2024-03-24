@@ -3,7 +3,6 @@
 Learnbefore is a platform designed to help you discover unfamiliar words, allowing you to learn them in advance, before
 encountering them in films, books, blogs, etc.
 
-
   <img src="img/learnie.jpg" alt="Learnie" style="max-width:300px; max-height:300px;">
 
 **Learnie™** - the adorable name of a little dog capable of reading entire texts for you and suggesting words to learn.
