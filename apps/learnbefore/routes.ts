@@ -1,3 +1,3 @@
 export const RoutePaths = {
   index: "/",
-} as const;
+} as const
