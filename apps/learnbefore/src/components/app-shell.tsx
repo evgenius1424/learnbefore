@@ -1,9 +1,9 @@
-import { Link } from "react-router-dom";
-import React from "react";
+import { Link } from "react-router-dom"
+import React from "react"
 
 type AppShellProps = {
-  children: React.ReactNode;
-};
+  children: React.ReactNode
+}
 export const AppShell: React.FC<AppShellProps> = ({ children }) => (
   <div className="flex flex-col min-h-[100dvh]">
     <header className="px-4 lg:px-6 h-14 flex items-center">
@@ -21,4 +21,4 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => (
     </header>
     {children}
   </div>
-);
+)

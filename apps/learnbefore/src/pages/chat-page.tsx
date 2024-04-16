@@ -1,38 +1,51 @@
-import React, { useState } from "react";
-import { AppShell } from "../components/app-shell";
-import { Card, CardContent } from "@repo/ui/components/ui/card";
-import { Button } from "@repo/ui/components/ui/button";
-import { Input } from "@repo/ui/components/ui/input";
+import React, { useState } from "react"
+import { AppShell } from "../components/app-shell"
+import { Card, CardContent } from "@repo/ui/components/ui/card"
+import { Button } from "@repo/ui/components/ui/button"
+import { Input } from "@repo/ui/components/ui/input"
 
-interface Word {
-  name: string;
-  explanation: string;
-}
-
-interface ResponseMessage {
-  words: Word[];
+type WordDefinition = {
+  word: string
+  meaning: string
+  language: string
+  frequency: "high" | "medium" | "low"
 }
 
 export const ChatPage: React.FC = () => {
-  const [messages, setMessages] = useState<(ResponseMessage | string)[]>([]);
-  const [inputValue, setInputValue] = useState("");
+  const [messages, setMessages] = useState<(string | WordDefinition)[]>([])
+  const [inputValue, setInputValue] = useState("")
 
-  const handleSend = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (inputValue.trim() !== "") {
-      const words = inputValue.trim().split(/\s+/);
-      const responseWords: Word[] = words.map((word) => ({
-        name: word,
-        explanation: `${word} has some explanation`,
-      }));
-      const responseMessage: ResponseMessage = {
-        words: responseWords,
-      };
+  const handleSend = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (inputValue.trim() === "") return
+    setMessages((prev) => [...prev, inputValue])
+    try {
+      const response = await fetch(
+        "http://localhost:3000/words?text=" + encodeURIComponent(inputValue),
+      )
+      // noinspection TypeScriptValidateTypes
+      const reader = response.body?.getReader()
+      if (!reader) {
+        console.error("ReadableStream not available")
+        return
+      }
 
-      setMessages([...messages, inputValue, responseMessage]);
-      setInputValue("");
+      const readStream: () => Promise<unknown> = async () => {
+        const { done, value } = await reader.read()
+        if (done) return
+        const textValue = new TextDecoder().decode(value)
+        const definition: WordDefinition = JSON.parse(textValue)
+        setMessages((prevMessages) => [...prevMessages, definition])
+
+        return readStream()
+      }
+
+      await readStream()
+      setInputValue("")
+    } catch (error) {
+      console.error("Error fetching data:", error)
     }
-  };
+  }
 
   return (
     <AppShell>
@@ -58,34 +71,32 @@ export const ChatPage: React.FC = () => {
                         <p className="text-sm">{message}</p>
                       </div>
                     </div>
-                  );
+                  )
                 } else {
                   return (
                     <div
                       key={index}
                       className="flex flex-wrap gap-2 justify-center w-full"
                     >
-                      {message.words.map((word, wordIndex) => (
-                        <Card
-                          key={wordIndex}
-                          className="bg-white shadow rounded-lg p-4"
-                        >
-                          <CardContent>
-                            <div className="flex items-center space-x-4">
-                              <div>
-                                <p className="text-2xl text-center font-semibold text-gray-800">
-                                  {word.name}
-                                </p>
-                                <p className="text-sm text-center text-gray-500">
-                                  {word.explanation}
-                                </p>
-                              </div>
+                      <Card
+                        key={message.word}
+                        className="bg-white shadow rounded-lg p-4"
+                      >
+                        <CardContent>
+                          <div className="flex items-center space-x-4">
+                            <div>
+                              <p className="text-2xl text-center font-semibold text-gray-800">
+                                {message.word}
+                              </p>
+                              <p className="text-sm text-center text-gray-500">
+                                {message.meaning}
+                              </p>
                             </div>
-                          </CardContent>
-                        </Card>
-                      ))}
+                          </div>
+                        </CardContent>
+                      </Card>
                     </div>
-                  );
+                  )
                 }
               })
             )}
@@ -106,5 +117,5 @@ export const ChatPage: React.FC = () => {
         </form>
       </footer>
     </AppShell>
-  );
-};
+  )
+}
