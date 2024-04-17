@@ -36,9 +36,14 @@ export const handlers = [
   }),
 
   http.post("/api/chat", async ({ request }) => {
-    const { text } = (await request.json()) as { text: string }
-    if (!text) {
-      // TODO:
+    const { text } = (await request.json()) as Record<string, unknown>
+    if (!text || typeof text !== "string") {
+      return HttpResponse.json(
+        {
+          message: "'text' parameter is missing or of wrong type.",
+        },
+        { status: 400 },
+      )
     }
 
     const stream = new ReadableStream({
@@ -58,7 +63,7 @@ export const handlers = [
           .map((word) => createWord(word, newMessage.id))
 
         for (const word of words) {
-          await waitFor(1000)
+          await waitFor(250)
           chat.find((m) => m.id === newMessage.id)?.words.push(word)
           controller.enqueue(encoder.encode(JSON.stringify(word)))
         }

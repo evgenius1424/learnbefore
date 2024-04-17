@@ -1,51 +1,97 @@
 import React, { useState } from "react"
 import { AppShell } from "../components/app-shell"
+import useSWR from "swr"
+import { MessageWithWords, Word } from "@repo/types/words.ts"
 import { Card, CardContent } from "@repo/ui/components/ui/card"
-import { Button } from "@repo/ui/components/ui/button"
-import { Input } from "@repo/ui/components/ui/input"
+import { Input } from "@ui/components/ui/input.tsx"
+import { Button } from "@ui/components/ui/button.tsx"
 
-type WordDefinition = {
-  word: string
-  meaning: string
-  language: string
-  frequency: "high" | "medium" | "low"
+async function fetcher(url: string) {
+  const res = await fetch(url)
+  if (!res.ok) {
+    throw new Error("An error occurred while fetching the data.")
+  }
+  return res.json()
 }
 
 export const ChatPage: React.FC = () => {
-  const [messages, setMessages] = useState<(string | WordDefinition)[]>([])
+  const {
+    data: messages,
+    error,
+    mutate,
+  } = useSWR<MessageWithWords[]>("/api/chat", fetcher)
+
   const [inputValue, setInputValue] = useState("")
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault()
     if (inputValue.trim() === "") return
-    setMessages((prev) => [...prev, inputValue])
-    try {
-      const response = await fetch(
-        "http://localhost:3000/words?text=" + encodeURIComponent(inputValue),
-      )
-      // noinspection TypeScriptValidateTypes
-      const reader = response.body?.getReader()
-      if (!reader) {
-        console.error("ReadableStream not available")
+
+    const optimisticMessage: MessageWithWords = {
+      id: "",
+      userId: "user1",
+      text: inputValue,
+      timestamp: new Date().toISOString(),
+      words: [],
+    }
+
+    await mutate([...(messages || []), optimisticMessage], {
+      revalidate: false,
+    })
+
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: inputValue }),
+    })
+
+    if (!response.ok || !response.body) {
+      console.error("Response or ReadableStream not available")
+      return
+    }
+
+    const reader = response.body.getReader()
+
+    async function handleReaderChunk(): Promise<void> {
+      const { done, value } = await reader.read()
+
+      if (done) {
         return
       }
 
-      const readStream: () => Promise<unknown> = async () => {
-        const { done, value } = await reader.read()
-        if (done) return
-        const textValue = new TextDecoder().decode(value)
-        const definition: WordDefinition = JSON.parse(textValue)
-        setMessages((prevMessages) => [...prevMessages, definition])
+      const textValue = new TextDecoder("utf-8").decode(value)
+      const newEntity: MessageWithWords | Word = JSON.parse(textValue)
 
-        return readStream()
-      }
+      await mutate(
+        (messages) => {
+          if ("words" in newEntity) {
+            if (!messages) {
+              return [newEntity]
+            }
+            return messages.map((message) =>
+              message.id === optimisticMessage.id ? newEntity : message,
+            )
+          } else {
+            return (messages || []).map((message) => {
+              if (message.id === newEntity.messageId) {
+                message.words.push(newEntity)
+              }
+              return message
+            })
+          }
+        },
+        { revalidate: false },
+      )
 
-      await readStream()
-      setInputValue("")
-    } catch (error) {
-      console.error("Error fetching data:", error)
+      return handleReaderChunk()
     }
+
+    await handleReaderChunk()
+    setInputValue("")
   }
+
+  if (error) return <div>Failed to load messages</div>
+  if (!messages) return <div>Loading...</div>
 
   return (
     <AppShell>
@@ -63,42 +109,36 @@ export const ChatPage: React.FC = () => {
                 </p>
               </div>
             ) : (
-              messages.map((message, index) => {
-                if (typeof message === "string") {
-                  return (
-                    <div key={index} className="flex items-start gap-2 w-full">
-                      <div className="w-full rounded-lg bg-zinc-200 dark:bg-zinc-700 p-2 text-left">
-                        <p className="text-sm">{message}</p>
-                      </div>
+              messages.map((message, index) => (
+                <React.Fragment key={index}>
+                  <div className="flex items-start gap-2 w-full">
+                    <div className="w-full rounded-lg bg-zinc-200 dark:bg-zinc-700 p-2 text-left">
+                      <p className="text-sm">{message.text}</p>
                     </div>
-                  )
-                } else {
-                  return (
-                    <div
-                      key={index}
-                      className="flex flex-wrap gap-2 justify-center w-full"
-                    >
+                  </div>
+                  <div className="flex flex-wrap gap-2 justify-center w-full">
+                    {message.words.map((word, index) => (
                       <Card
-                        key={message.word}
+                        key={index}
                         className="bg-white shadow rounded-lg p-4"
                       >
                         <CardContent>
                           <div className="flex items-center space-x-4">
                             <div>
                               <p className="text-2xl text-center font-semibold text-gray-800">
-                                {message.word}
+                                {word.word}
                               </p>
                               <p className="text-sm text-center text-gray-500">
-                                {message.meaning}
+                                {word.meaning}
                               </p>
                             </div>
                           </div>
                         </CardContent>
                       </Card>
-                    </div>
-                  )
-                }
-              })
+                    ))}
+                  </div>
+                </React.Fragment>
+              ))
             )}
           </div>
         </div>

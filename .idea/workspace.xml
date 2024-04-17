@@ -4,20 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5af82dfd-ae3b-4cdb-9e12-5e88ebac9767" name="Changes" comment="Prototype backend  with express and Open AI.">
-      <change afterPath="$PROJECT_DIR$/apps/learnbefore/public/mockServiceWorker.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/learnbefore/src/mocks/browser.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/learnbefore/src/mocks/handlers.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/learnbefore/src/pages/debug-chat-page.tsx" afterDir="false" />
+    <list default="true" id="5af82dfd-ae3b-4cdb-9e12-5e88ebac9767" name="Changes" comment="Replace custom dev server with MSW and SWR&#10;&#10;The custom dev server is replaced with Mock Service Worker (MSW) for convenience and efficiency. Additionally, SWR library is used for local data fetching. This enables mock resolvers for API calls, resulting in better development experience and practical testing. The changes also involve modifications in the chat page and debug chat page logic, reflecting the server and data fetching changes.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/learnbefore/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/learnbefore/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/learnbefore/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/learnbefore/src/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/learnbefore/src/components/app-shell.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/learnbefore/src/components/app-shell.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/learnbefore/src/main.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/learnbefore/src/main.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/learnbefore/src/mocks/handlers.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/learnbefore/src/mocks/handlers.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/learnbefore/src/pages/chat-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/learnbefore/src/pages/chat-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/dev-server/make-server.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/dev-server/package.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/learnbefore/src/pages/debug-chat-page.tsx" beforeDir="false" />
     </list>
     <list id="62f6d2eb-24ed-4650-8711-a9f2c7dff247" name="Zzz" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -114,7 +106,7 @@
       <updated>1711138209752</updated>
       <workItem from="1712841490553" duration="12000" />
       <workItem from="1712841506920" duration="8209000" />
-      <workItem from="1713278353695" duration="13505000" />
+      <workItem from="1713278353695" duration="14896000" />
     </task>
     <task id="LOCAL-00001" summary="feat: add README.md">
       <option name="closed" value="true" />
@@ -178,7 +170,15 @@
       <option name="project" value="LOCAL" />
       <updated>1712905785647</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Replace custom dev server with MSW and SWR&#10;&#10;The custom dev server is replaced with Mock Service Worker (MSW) for convenience and efficiency. Additionally, SWR library is used for local data fetching. This enables mock resolvers for API calls, resulting in better development experience and practical testing. The changes also involve modifications in the chat page and debug chat page logic, reflecting the server and data fetching changes.">
+      <option name="closed" value="true" />
+      <created>1713304334467</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1713304334467</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -210,6 +210,11 @@
                   <entry key="Show.Git.Branches" value="true" />
                 </map>
               </option>
+              <option name="TEXT_FILTER_SETTINGS">
+                <TextFilterSettings>
+                  <option name="REGEX" value="true" />
+                </TextFilterSettings>
+              </option>
             </State>
           </value>
         </entry>
@@ -223,6 +228,7 @@
     <MESSAGE value="raw" />
     <MESSAGE value="Add 'types' and 'dev-server' packages and update dependencies" />
     <MESSAGE value="Prototype backend  with express and Open AI." />
-    <option name="LAST_COMMIT_MESSAGE" value="Prototype backend  with express and Open AI." />
+    <MESSAGE value="Replace custom dev server with MSW and SWR&#10;&#10;The custom dev server is replaced with Mock Service Worker (MSW) for convenience and efficiency. Additionally, SWR library is used for local data fetching. This enables mock resolvers for API calls, resulting in better development experience and practical testing. The changes also involve modifications in the chat page and debug chat page logic, reflecting the server and data fetching changes." />
+    <option name="LAST_COMMIT_MESSAGE" value="Replace custom dev server with MSW and SWR&#10;&#10;The custom dev server is replaced with Mock Service Worker (MSW) for convenience and efficiency. Additionally, SWR library is used for local data fetching. This enables mock resolvers for API calls, resulting in better development experience and practical testing. The changes also involve modifications in the chat page and debug chat page logic, reflecting the server and data fetching changes." />
   </component>
 </project>
