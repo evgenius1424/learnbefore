@@ -1,6 +1,5 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { AppShell } from "../components/app-shell"
-import useSWR from "swr"
 import { MessageWithWords, Word } from "@repo/types/words.ts"
 import { Card, CardContent } from "@repo/ui/components/ui/card"
 import { Input } from "@ui/components/ui/input.tsx"
@@ -15,13 +14,13 @@ async function fetcher(url: string) {
 }
 
 export const ChatPage: React.FC = () => {
-  const {
-    data: messages,
-    error,
-    mutate,
-  } = useSWR<MessageWithWords[]>("/api/chat", fetcher)
-
+  const [messages, setMessages] = useState<MessageWithWords[] | null>(null)
   const [inputValue, setInputValue] = useState("")
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    fetcher("/api/chat").then(setMessages).catch(setError)
+  }, [])
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -35,9 +34,10 @@ export const ChatPage: React.FC = () => {
       words: [],
     }
 
-    await mutate([...(messages || []), optimisticMessage], {
-      revalidate: false,
-    })
+    setMessages((prevMessages = []) => [
+      ...(prevMessages || []),
+      optimisticMessage,
+    ])
 
     const response = await fetch("/api/chat", {
       method: "POST",
@@ -62,26 +62,20 @@ export const ChatPage: React.FC = () => {
       const textValue = new TextDecoder("utf-8").decode(value)
       const newEntity: MessageWithWords | Word = JSON.parse(textValue)
 
-      await mutate(
-        (messages) => {
-          if ("words" in newEntity) {
-            if (!messages) {
-              return [newEntity]
+      setMessages((prevMessages = []) => {
+        if ("words" in newEntity) {
+          return (prevMessages || []).map((message) =>
+            message.id === optimisticMessage.id ? newEntity : message,
+          )
+        } else {
+          return (prevMessages || []).map((message) => {
+            if (message.id === newEntity.messageId) {
+              message.words.push(newEntity)
             }
-            return messages.map((message) =>
-              message.id === optimisticMessage.id ? newEntity : message,
-            )
-          } else {
-            return (messages || []).map((message) => {
-              if (message.id === newEntity.messageId) {
-                message.words.push(newEntity)
-              }
-              return message
-            })
-          }
-        },
-        { revalidate: false },
-      )
+            return message
+          })
+        }
+      })
 
       return handleReaderChunk()
     }
@@ -92,7 +86,6 @@ export const ChatPage: React.FC = () => {
 
   if (error) return <div>Failed to load messages</div>
   if (!messages) return <div>Loading...</div>
-
   return (
     <AppShell>
       <main className="relative h-full w-full flex-1 overflow-auto transition-width">

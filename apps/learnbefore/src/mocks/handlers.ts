@@ -63,7 +63,7 @@ export const handlers = [
           .map((word) => createWord(word, newMessage.id))
 
         for (const word of words) {
-          await waitFor(250)
+          await waitFor(500)
           chat.find((m) => m.id === newMessage.id)?.words.push(word)
           controller.enqueue(encoder.encode(JSON.stringify(word)))
         }
@@ -92,6 +92,5 @@ const createWord = (text: string, messageId: string) => {
   }
 }
 
-const waitFor = (ms: number) => {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
+const waitFor = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms))
