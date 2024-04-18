@@ -6,6 +6,7 @@ import jsonParser from "best-effort-json-parser"
 import { startExpress } from "../service/start-express"
 import { Stream } from "openai/streaming"
 import { ChatCompletionChunk } from "openai/resources"
+import { MessageWithWords } from "@repo/types/words"
 
 dotenv.config()
 
@@ -67,3 +68,78 @@ Output the results in valid JSON format, containing an array of objects with the
 
 The output should contain 20-30 words, prioritized based on their importance for understanding the text. Start with less familiar words, progressing to those that are more crucial to understanding the text.
 Do not use words which are not present in text.`
+
+const chat: MessageWithWords[] = [
+  {
+    id: "1",
+    userId: "user1",
+    text: "Hello",
+    timestamp: "2024-01-01T00:00:01Z",
+    words: [
+      {
+        id: "word1",
+        messageId: "1",
+        timestamp: "2024-01-01T00:00:01Z",
+        word: "Hello",
+        meaning: "A greeting or expression of goodwill.",
+        translatedMeaning: "Un saludo o expresión de buena voluntad.",
+        context: "Used to greet someone.",
+        languageCode: "EN",
+        frequencyInLanguage: "high",
+      },
+    ],
+  },
+]
+
+server.get("/api/chat", (req, res) => {
+  return res.status(200).json([...chat])
+})
+
+server.post("/api/chat", async (req, res) => {
+  const text = req.body.text
+  if (!text || typeof text !== "string") {
+    return res
+      .status(400)
+      .json({ message: "'text' parameter is missing or of wrong type." })
+  }
+
+  const newMessage: MessageWithWords = {
+    id: crypto.randomUUID(),
+    userId: "user1",
+    text: text,
+    timestamp: new Date().toISOString(),
+    words: [],
+  }
+
+  chat.push(newMessage)
+
+  const words = text.split(" ").map((word) => createWord(word, newMessage.id))
+
+  for (const word of words) {
+    await waitFor(500)
+    const chatMessage = chat.find((m) => m.id === newMessage.id)
+    if (chatMessage) {
+      chatMessage.words.push(word)
+    }
+  }
+
+  return res.status(200).json(newMessage)
+})
+
+function createWord(text: string, messageId: string) {
+  return {
+    id: crypto.randomUUID(),
+    messageId,
+    timestamp: new Date().toISOString(),
+    word: text,
+    meaning: "Meaning of " + text,
+    translatedMeaning: "Meaning of " + text + " in other language",
+    context: "Used in the context of " + text,
+    languageCode: "EN",
+    frequencyInLanguage: "high" as const,
+  }
+}
+
+function waitFor(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
