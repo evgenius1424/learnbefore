@@ -5,10 +5,10 @@
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
-    "@turbo/gen": "^1.13.0",
-    "@types/eslint": "^8.56.6",
-    "@types/node": "^20.11.30",
-    "eslint": "^8.57.0",
-    "typescript": "^5.4.3"
+    "@turbo/gen": "^1.13.2",
+    "@types/eslint": "^8.56.9",
+    "@types/node": "^20.12.7",
+    "eslint": "^9.0.0",
+    "typescript": "^5.4.5"
   }
 }

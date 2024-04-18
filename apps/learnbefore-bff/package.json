@@ -12,16 +12,16 @@
     "best-effort-json-parser": "^1.0.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "express": "^4.19.1",
-    "natural": "^6.12.0",
-    "openai": "^4.29.2"
+    "express": "^4.19.2",
+    "natural": "^7.0.5",
+    "openai": "^4.37.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
-    "@types/node": "^20.11.30",
+    "@types/node": "^20.12.7",
     "nodemon": "^3.1.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.4.3"
+    "typescript": "^5.4.5"
   }
 }
