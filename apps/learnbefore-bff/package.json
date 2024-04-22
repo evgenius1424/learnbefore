@@ -5,8 +5,8 @@
   "main": "dist/api/words.js",
   "scripts": {
     "build": "npx tsc",
-    "preview": "node dist/index.js",
-    "dev": "nodemon api/index.ts"
+    "preview": "node dist/api/words.js",
+    "dev": "nodemon api/words.ts"
   },
   "dependencies": {
     "best-effort-json-parser": "^1.0.1",
@@ -14,7 +14,9 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "natural": "^7.0.5",
-    "openai": "^4.37.1"
+    "openai": "^4.37.1",
+    "vitest": "^1.5.0",
+    "zod": "^3.22.5"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
@@ -22,7 +24,6 @@
     "@types/node": "^20.12.7",
     "nodemon": "^3.1.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.4.5",
-    "@repo/types": "workspace:*"
+    "typescript": "^5.4.5"
   }
 }

@@ -15,8 +15,8 @@ export type Word = {
   timestamp: string
   word: string
   meaning: string
-  translatedMeaning: string
+  translation: string
   context: string
   languageCode: string
-  frequencyInLanguage: "high" | "medium" | "low"
+  frequencyLevel: "high" | "medium" | "low"
 }

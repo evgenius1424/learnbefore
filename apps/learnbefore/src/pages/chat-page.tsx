@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { AppShell } from "../components/app-shell"
 import { MessageWithWords, Word } from "@repo/types/words.ts"
 import { Card, CardContent } from "@repo/ui/components/ui/card"
@@ -17,6 +17,7 @@ export const ChatPage: React.FC = () => {
   const [messages, setMessages] = useState<MessageWithWords[] | null>(null)
   const [inputValue, setInputValue] = useState("")
   const [error, setError] = useState(null)
+  const [sendInProgress, setSendInProgress] = useState(false)
 
   useEffect(() => {
     fetcher("/api/chat").then(setMessages).catch(setError)
@@ -25,6 +26,8 @@ export const ChatPage: React.FC = () => {
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault()
     if (inputValue.trim() === "") return
+
+    setSendInProgress(true)
 
     const optimisticMessage: MessageWithWords = {
       id: "",
@@ -39,34 +42,27 @@ export const ChatPage: React.FC = () => {
       optimisticMessage,
     ])
 
-    const response = await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: inputValue }),
-    })
+    const mock = false
+    const sse = new EventSource(
+      `/api/words?text=${encodeURIComponent(inputValue)}&mock=` + mock,
+    )
 
-    if (!response.ok || !response.body) {
-      console.error("Response or ReadableStream not available")
-      return
-    }
-
-    const reader = response.body.getReader()
-
-    async function handleReaderChunk(): Promise<void> {
-      const { done, value } = await reader.read()
-
-      if (done) {
+    sse.onmessage = function (event) {
+      const newEntity: MessageWithWords | Word = JSON.parse(event.data)
+      if (!newEntity) {
+        sse.close()
+        setSendInProgress(false)
         return
       }
-
-      const textValue = new TextDecoder("utf-8").decode(value)
-      const newEntity: MessageWithWords | Word = JSON.parse(textValue)
-
       setMessages((prevMessages = []) => {
         if ("words" in newEntity) {
-          return (prevMessages || []).map((message) =>
-            message.id === optimisticMessage.id ? newEntity : message,
-          )
+          return (prevMessages || []).map((message) => {
+            if (message.id === optimisticMessage.id) {
+              return newEntity
+            } else {
+              return message
+            }
+          })
         } else {
           return (prevMessages || []).map((message) => {
             if (message.id === newEntity.messageId) {
@@ -76,16 +72,20 @@ export const ChatPage: React.FC = () => {
           })
         }
       })
-
-      return handleReaderChunk()
     }
 
-    await handleReaderChunk()
+    sse.onerror = function (err) {
+      console.error("SSE connection error: ", err)
+      sse.close()
+      setSendInProgress(false)
+    }
+
     setInputValue("")
   }
 
   if (error) return <div>Failed to load messages</div>
   if (!messages) return <div>Loading...</div>
+
   return (
     <AppShell>
       <main className="relative h-full w-full flex-1 overflow-auto transition-width">
@@ -119,7 +119,10 @@ export const ChatPage: React.FC = () => {
                           <div className="flex items-center space-x-4">
                             <div>
                               <p className="text-2xl text-center font-semibold text-gray-800">
-                                {word.word}
+                                {word.word}{" "}
+                                {word.translation
+                                  ? " - " + word.translation
+                                  : null}
                               </p>
                               <p className="text-sm text-center text-gray-500">
                                 {word.meaning}
@@ -140,12 +143,15 @@ export const ChatPage: React.FC = () => {
         <form onSubmit={handleSend}>
           <div className="flex items-center gap-2">
             <Input
+              disabled={sendInProgress}
               className="flex-1"
               placeholder="Type text to find words to learn..."
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
             />
-            <Button type="submit">Send</Button>
+            <Button disabled={sendInProgress} type="submit">
+              Send
+            </Button>
           </div>
         </form>
       </footer>
