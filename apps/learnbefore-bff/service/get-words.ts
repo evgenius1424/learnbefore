@@ -1,6 +1,6 @@
 import { parse } from "best-effort-json-parser"
-import { Word, wordSchema } from "../api/words"
 import OpenAI from "openai"
+import { Word, wordSchema } from "../types"
 
 export async function* getWords(
   messageId: string,

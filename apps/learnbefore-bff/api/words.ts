@@ -1,31 +1,7 @@
 import OpenAI from "openai"
 import { startExpress } from "../service/start-express"
-import { z } from "zod"
 import { getWords } from "../service/get-words"
-
-export type Message = {
-  id: string
-  userId: string
-  text: string
-  timestamp: string
-}
-
-export type MessageWithWords = Message & {
-  words: Word[]
-}
-
-export const wordSchema = z.object({
-  id: z.string(),
-  messageId: z.string(),
-  timestamp: z.string(),
-  word: z.string(),
-  meaning: z.string(),
-  translation: z.string().optional(),
-  languageCode: z.string(),
-  frequencyLevel: z.enum(["high", "medium", "low"]),
-})
-
-export type Word = z.infer<typeof wordSchema>
+import { MessageWithWords } from "../types"
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -51,7 +27,7 @@ const chat: Record<string, MessageWithWords> = {
         timestamp: "2024-01-01T00:00:01Z",
         word: "Hello",
         meaning: "A greeting or expression of goodwill.",
-        translation: "Un saludo o expresión de buena voluntad.",
+        translation: "Здравствуйте",
         languageCode: "en",
         frequencyLevel: "high",
       },
@@ -96,9 +72,16 @@ server.get("/api/words", async (req, res) => {
     const waitFor = (ms: number) =>
       new Promise((resolve) => setTimeout(resolve, ms))
 
-    for (const word of text
-      .split(" ")
-      .map((word) => createDummyWord(word, messageId))) {
+    for (const word of text.split(" ").map((word) => ({
+      id: crypto.randomUUID(),
+      messageId,
+      timestamp: new Date().toISOString(),
+      word: word,
+      meaning: "Meaning of " + word,
+      translation: "Translation of " + word + " in other language",
+      languageCode: "en",
+      frequencyLevel: "high" as const,
+    }))) {
       await waitFor(500)
       const message = newMessage
       if (message) {
@@ -118,16 +101,3 @@ server.get("/api/words", async (req, res) => {
   res.write(`data: ${JSON.stringify(null)}\n\n`)
   res.flushHeaders()
 })
-
-function createDummyWord(text: string, messageId: string): Word {
-  return {
-    id: crypto.randomUUID(),
-    messageId,
-    timestamp: new Date().toISOString(),
-    word: text,
-    meaning: "Meaning of " + text,
-    translation: "Translation of " + text + " in other language",
-    languageCode: "en",
-    frequencyLevel: "high" as const,
-  }
-}

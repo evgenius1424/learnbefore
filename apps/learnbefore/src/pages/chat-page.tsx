@@ -1,17 +1,12 @@
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { AppShell } from "../components/app-shell"
 import { MessageWithWords, Word } from "@repo/types/words.ts"
 import { Card, CardContent } from "@repo/ui/components/ui/card"
 import { Input } from "@ui/components/ui/input.tsx"
 import { Button } from "@ui/components/ui/button.tsx"
 
-async function fetcher(url: string) {
-  const res = await fetch(url)
-  if (!res.ok) {
-    throw new Error("An error occurred while fetching the data.")
-  }
-  return res.json()
-}
+const dummyUserID = "<userId>"
+const mock = true
 
 export const ChatPage: React.FC = () => {
   const [messages, setMessages] = useState<MessageWithWords[] | null>(null)
@@ -20,7 +15,10 @@ export const ChatPage: React.FC = () => {
   const [sendInProgress, setSendInProgress] = useState(false)
 
   useEffect(() => {
-    fetcher("/api/chat").then(setMessages).catch(setError)
+    fetch("/api/chat")
+      .then((res) => res.json())
+      .then(setMessages)
+      .catch(setError)
   }, [])
 
   const handleSend = async (e: React.FormEvent) => {
@@ -31,42 +29,35 @@ export const ChatPage: React.FC = () => {
 
     const optimisticMessage: MessageWithWords = {
       id: "",
-      userId: "user1",
+      userId: dummyUserID,
       text: inputValue,
       timestamp: new Date().toISOString(),
       words: [],
     }
 
-    setMessages((prevMessages = []) => [
-      ...(prevMessages || []),
-      optimisticMessage,
-    ])
+    setMessages((prev = []) => [...(prev || []), optimisticMessage])
 
-    const mock = false
     const sse = new EventSource(
-      `/api/words?text=${encodeURIComponent(inputValue)}&mock=` + mock,
+      `/api/words?text=${encodeURIComponent(inputValue)}&mock=${mock}`,
     )
 
     sse.onmessage = function (event) {
-      const newEntity: MessageWithWords | Word = JSON.parse(event.data)
-      if (!newEntity) {
+      const messageOrWord: MessageWithWords | Word = JSON.parse(event.data)
+      if (!messageOrWord) {
         sse.close()
         setSendInProgress(false)
         return
       }
-      setMessages((prevMessages = []) => {
-        if ("words" in newEntity) {
-          return (prevMessages || []).map((message) => {
-            if (message.id === optimisticMessage.id) {
-              return newEntity
-            } else {
-              return message
-            }
-          })
+      setMessages((prev = []) => {
+        prev = prev || []
+        if ("words" in messageOrWord) {
+          return prev.map((message) =>
+            message.id === optimisticMessage.id ? messageOrWord : message,
+          )
         } else {
-          return (prevMessages || []).map((message) => {
-            if (message.id === newEntity.messageId) {
-              message.words.push(newEntity)
+          return prev.map((message) => {
+            if (message.id === messageOrWord.messageId) {
+              message.words.push(messageOrWord)
             }
             return message
           })
@@ -83,15 +74,14 @@ export const ChatPage: React.FC = () => {
     setInputValue("")
   }
 
-  if (error) return <div>Failed to load messages</div>
-  if (!messages) return <div>Loading...</div>
+  if (error) return <div>Error occurred: {error}</div>
 
   return (
     <AppShell>
       <main className="relative h-full w-full flex-1 overflow-auto transition-width">
         <div className="container flex flex-col h-[80vh] rounded-lg mx-auto">
           <div className="space-y-4 p-4 overflow-y-auto">
-            {messages.length === 0 ? (
+            {(messages || []).length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full">
                 <h1 className="text-3xl font-semibold text-gray-800 mb-4">
                   Welcome to Learnbefore
@@ -102,7 +92,7 @@ export const ChatPage: React.FC = () => {
                 </p>
               </div>
             ) : (
-              messages.map((message, index) => (
+              (messages || []).map((message, index) => (
                 <React.Fragment key={index}>
                   <div className="flex items-start gap-2 w-full">
                     <div className="w-full rounded-lg bg-zinc-200 dark:bg-zinc-700 p-2 text-left">
