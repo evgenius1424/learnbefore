@@ -1,7 +1,8 @@
 import OpenAI from "openai"
-import { startExpress } from "../service/start-express"
-import { getWords } from "../service/get-words"
+import { startExpress } from "../src/start-express"
+import { getWords } from "../src/get-words"
 import { MessageWithWords } from "../types"
+import { waitFor } from "../src/wait-for"
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -69,9 +70,6 @@ server.get("/api/words", async (req, res) => {
   res.flushHeaders()
 
   if (mock) {
-    const waitFor = (ms: number) =>
-      new Promise((resolve) => setTimeout(resolve, ms))
-
     for (const word of text.split(" ").map((word) => ({
       id: crypto.randomUUID(),
       messageId,
@@ -83,12 +81,9 @@ server.get("/api/words", async (req, res) => {
       frequencyLevel: "high" as const,
     }))) {
       await waitFor(500)
-      const message = newMessage
-      if (message) {
-        message.words.push(word)
-        res.write(`data: ${JSON.stringify(word)}\n\n`)
-        res.flushHeaders()
-      }
+      newMessage.words.push(word)
+      res.write(`data: ${JSON.stringify(word)}\n\n`)
+      res.flushHeaders()
     }
   } else {
     for await (const word of getWords(messageId, openai, text)) {

@@ -1,5 +1,5 @@
-# Use an official Node.js runtime as a base image
-FROM node:alpine
+# Use an official Node.js runtime as a base image for multi-architecture support
+FROM node:20
 
 # Set the working directory in the container
 WORKDIR /app

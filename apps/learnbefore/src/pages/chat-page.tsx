@@ -9,7 +9,7 @@ const dummyUserID = "<userId>"
 const mock = true
 
 export const ChatPage: React.FC = () => {
-  const [messages, setMessages] = useState<MessageWithWords[] | null>(null)
+  const [messages, setMessages] = useState<MessageWithWords[]>([])
   const [inputValue, setInputValue] = useState("")
   const [error, setError] = useState(null)
   const [sendInProgress, setSendInProgress] = useState(false)
@@ -28,14 +28,14 @@ export const ChatPage: React.FC = () => {
     setSendInProgress(true)
 
     const optimisticMessage: MessageWithWords = {
-      id: "",
+      id: crypto.randomUUID(),
       userId: dummyUserID,
       text: inputValue,
       timestamp: new Date().toISOString(),
       words: [],
     }
 
-    setMessages((prev = []) => [...(prev || []), optimisticMessage])
+    setMessages((prev = []) => [...prev, optimisticMessage])
 
     const sse = new EventSource(
       `/api/words?text=${encodeURIComponent(inputValue)}&mock=${mock}`,
@@ -49,7 +49,6 @@ export const ChatPage: React.FC = () => {
         return
       }
       setMessages((prev = []) => {
-        prev = prev || []
         if ("words" in messageOrWord) {
           return prev.map((message) =>
             message.id === optimisticMessage.id ? messageOrWord : message,
@@ -81,7 +80,7 @@ export const ChatPage: React.FC = () => {
       <main className="relative h-full w-full flex-1 overflow-auto transition-width">
         <div className="container flex flex-col h-[80vh] rounded-lg mx-auto">
           <div className="space-y-4 p-4 overflow-y-auto">
-            {(messages || []).length === 0 ? (
+            {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full">
                 <h1 className="text-3xl font-semibold text-gray-800 mb-4">
                   Welcome to Learnbefore
@@ -92,7 +91,7 @@ export const ChatPage: React.FC = () => {
                 </p>
               </div>
             ) : (
-              (messages || []).map((message, index) => (
+              messages.map((message, index) => (
                 <React.Fragment key={index}>
                   <div className="flex items-start gap-2 w-full">
                     <div className="w-full rounded-lg bg-zinc-200 dark:bg-zinc-700 p-2 text-left">
@@ -101,26 +100,7 @@ export const ChatPage: React.FC = () => {
                   </div>
                   <div className="flex flex-wrap gap-2 justify-center w-full">
                     {message.words.map((word, index) => (
-                      <Card
-                        key={index}
-                        className="bg-white shadow rounded-lg p-4"
-                      >
-                        <CardContent>
-                          <div className="flex items-center space-x-4">
-                            <div>
-                              <p className="text-2xl text-center font-semibold text-gray-800">
-                                {word.word}{" "}
-                                {word.translation
-                                  ? " - " + word.translation
-                                  : null}
-                              </p>
-                              <p className="text-sm text-center text-gray-500">
-                                {word.meaning}
-                              </p>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
+                      <WordCard key={index} word={word} />
                     ))}
                   </div>
                 </React.Fragment>
@@ -148,3 +128,18 @@ export const ChatPage: React.FC = () => {
     </AppShell>
   )
 }
+
+const WordCard: React.FC<{ word: Word }> = ({ word }) => (
+  <Card className="bg-white shadow rounded-lg p-4">
+    <CardContent>
+      <div className="flex items-center space-x-4">
+        <div>
+          <p className="text-2xl text-center font-semibold text-gray-800">
+            {word.word} {word.translation ? ` - ${word.translation}` : null}
+          </p>
+          <p className="text-sm text-center text-gray-500">{word.meaning}</p>
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+)

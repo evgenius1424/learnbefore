@@ -2,11 +2,11 @@
   "name": "learnbefore-bff",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/api/words.js",
+  "main": "dist/api/chat.js",
   "scripts": {
     "build": "npx tsc",
-    "preview": "node dist/api/words.js",
-    "dev": "nodemon api/words.ts"
+    "preview": "node dist/api/chat.js",
+    "dev": "nodemon api/chat.ts"
   },
   "dependencies": {
     "best-effort-json-parser": "^1.0.1",
