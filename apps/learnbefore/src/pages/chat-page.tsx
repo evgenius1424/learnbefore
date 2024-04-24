@@ -6,7 +6,7 @@ import { Input } from "@ui/components/ui/input.tsx"
 import { Button } from "@ui/components/ui/button.tsx"
 
 const dummyUserID = "<userId>"
-const mock = true
+const mock = false
 
 export const ChatPage: React.FC = () => {
   const [messages, setMessages] = useState<MessageWithWords[]>([])
