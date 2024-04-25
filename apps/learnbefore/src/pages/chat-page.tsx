@@ -9,7 +9,7 @@ const dummyUserID = "<userId>"
 const mock = false
 
 export const ChatPage: React.FC = () => {
-  const [messages, setMessages] = useState<MessageWithWords[]>([])
+  const [messages, setMessages] = useState<MessageWithWords[] | null>(null)
   const [inputValue, setInputValue] = useState("")
   const [error, setError] = useState(null)
   const [sendInProgress, setSendInProgress] = useState(false)
@@ -35,7 +35,7 @@ export const ChatPage: React.FC = () => {
       words: [],
     }
 
-    setMessages((prev = []) => [...prev, optimisticMessage])
+    setMessages((prev = []) => [...(prev || []), optimisticMessage])
 
     const sse = new EventSource(
       `/api/words?text=${encodeURIComponent(inputValue)}&mock=${mock}`,
@@ -50,11 +50,11 @@ export const ChatPage: React.FC = () => {
       }
       setMessages((prev = []) => {
         if ("words" in messageOrWord) {
-          return prev.map((message) =>
+          return (prev || []).map((message) =>
             message.id === optimisticMessage.id ? messageOrWord : message,
           )
         } else {
-          return prev.map((message) => {
+          return (prev || []).map((message) => {
             if (message.id === messageOrWord.messageId) {
               message.words.push(messageOrWord)
             }
@@ -80,7 +80,9 @@ export const ChatPage: React.FC = () => {
       <main className="relative h-full w-full flex-1 overflow-auto transition-width">
         <div className="container flex flex-col h-[80vh] rounded-lg mx-auto">
           <div className="space-y-4 p-4 overflow-y-auto">
-            {messages.length === 0 ? (
+            {messages === null ? (
+              <div></div>
+            ) : messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full">
                 <h1 className="text-3xl font-semibold text-gray-800 mb-4">
                   Welcome to Learnbefore
