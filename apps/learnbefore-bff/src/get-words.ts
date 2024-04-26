@@ -53,7 +53,7 @@ export async function* getWords(
 
 const systemPrompt =
   "Use only RFC8259 compliant JSON and help to extract list of words from the text that the average language learner is unlikely to know or that are crucial to the understanding of the text. " +
-  "Words should be converted to dictionary form. Duplicates, names of people, toponyms are not allowed." +
+  "Words should be converted to dictionary form. Duplicates, proper names, toponyms are not allowed." +
   "Words that do not exist in the text are not allowed."
 
 function getUserPrompt(text: string) {

@@ -5,7 +5,6 @@ import { Card, CardContent } from "@repo/ui/components/ui/card"
 import { Input } from "@ui/components/ui/input.tsx"
 import { Button } from "@ui/components/ui/button.tsx"
 
-const dummyUserID = "<userId>"
 const mock = false
 
 export const ChatPage: React.FC = () => {
@@ -29,7 +28,7 @@ export const ChatPage: React.FC = () => {
 
     const optimisticMessage: MessageWithWords = {
       id: crypto.randomUUID(),
-      userId: dummyUserID,
+      userId: "",
       text: inputValue,
       timestamp: new Date().toISOString(),
       words: [],
