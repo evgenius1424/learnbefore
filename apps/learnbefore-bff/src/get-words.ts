@@ -58,7 +58,7 @@ const systemPrompt =
 
 function getUserPrompt(text: string) {
   return `
-    Extract 20-30 words from the text below which language learner likely do not know or need to know in order to understand the text. 
+    Extract a lot of words from the text below which language learner likely do not know or need to know in order to understand the text. 
     Please ensure the extracted words are diverse and relevant to the context of the text.
     
     Example of list of words in JSON: 
