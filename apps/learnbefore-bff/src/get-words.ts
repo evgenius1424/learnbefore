@@ -11,7 +11,7 @@ export async function* getWords(
   for await (const part of await openAI.chat.completions.create({
     model: "gpt-3.5-turbo",
     stream: true,
-    max_tokens: 512,
+    max_tokens: 4096,
     response_format: { type: "json_object" },
     messages: [
       { role: "system", content: systemPrompt },
@@ -53,13 +53,13 @@ export async function* getWords(
 }
 
 const systemPrompt =
-  "Use only RFC8259 compliant JSON and help to extract list of words from the text that the average language learner is unlikely to know or that are crucial to the understanding of the text. " +
+  "Use only RFC8259 compliant compact JSON and help to extract big list of words from the text that the language learner is unlikely to know or that are crucial to the understanding of the text. " +
   "Words should be converted to dictionary form. Duplicates, proper names, toponyms are not allowed." +
   "Words that do not exist in the text are not allowed."
 
 function getUserPrompt(text: string) {
   return `
-    Extract 40-50 words from the text below which language learner likely do not know or need to know in order to understand the text. 
+    You must extract 50 words from the text below which language learner likely do not know or need to know in order to understand the text. 
     Please ensure the extracted words are diverse and relevant to the context of the text.
     
     Example of list of words in JSON: 
@@ -79,5 +79,5 @@ function getUserPrompt(text: string) {
     "languageCode" - ISO 639 language code for word itself, not a translation, e.g. 'en', 'ru', 'it' and so on.
     "frequencyLevel" - frequency of the word in language. only possible values: high, medium, low
       
-    Text: ${text}`
+    Text: ${text}`.trim()
 }
