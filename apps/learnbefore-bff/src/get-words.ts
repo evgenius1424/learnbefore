@@ -62,6 +62,8 @@ function getUserPrompt(text: string) {
     You must extract 50 words from the text below which language learner likely do not know or need to know in order to understand the text. 
     Please ensure the extracted words are diverse and relevant to the context of the text.
     
+    Translation language is Russian.
+    
     Example of list of words in JSON: 
     {
       words: [
