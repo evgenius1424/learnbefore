@@ -65,19 +65,13 @@ function getUserPrompt(text: string) {
     Example of list of words in JSON: 
     {
       words: [
-        "word": "Hello",
-        "meaning": "A greeting or expression of goodwill.",
-        "translation": "Здравствуйте",
-        "languageCode": "en",
-        "frequencyLevel": "high"
+        "word": "Hello",                                      // The word itself.
+        "meaning": "A greeting or expression of goodwill.",   // The definition or meaning of the word.
+        "translation": "Здравствуйте",                        // Translation of the word. Translation language is Russian.
+        "languageCode": "en",                                 // ISO 639 Language code indicating the language of the word (e.g., "en" for English).
+        "frequencyLevel": "high"                              // Frequency level of the word's usage in language, e.g., "high", "medium", "low".
       ]
     }
-    
-    "word" - dictionary form of the word
-    "meaning" - meaning of the word 
-    "translation" - translation of the word. Translation language is Russian.
-    "languageCode" - ISO 639 language code for word itself, not a translation, e.g. 'en', 'ru', 'it' and so on.
-    "frequencyLevel" - frequency of the word in language. only possible values: high, medium, low
       
     Text: ${text}`.trim()
 }

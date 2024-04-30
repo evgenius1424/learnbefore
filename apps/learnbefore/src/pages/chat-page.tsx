@@ -136,7 +136,8 @@ const WordCard: React.FC<{ word: Word }> = ({ word }) => (
       <div className="flex items-center space-x-4">
         <div>
           <p className="text-2xl text-center font-semibold text-gray-800">
-            {word.word} {word.translation ? ` - ${word.translation}` : null}
+            {word.word}{" "}
+            {word.translation?.length > 2 ? ` - ${word.translation}` : null}
           </p>
           <p className="text-sm text-center text-gray-500">{word.meaning}</p>
         </div>
