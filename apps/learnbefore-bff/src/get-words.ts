@@ -11,6 +11,7 @@ export async function* getWords(
   for await (const part of await openAI.chat.completions.create({
     model: "gpt-3.5-turbo",
     stream: true,
+    max_tokens: 512,
     response_format: { type: "json_object" },
     messages: [
       { role: "system", content: systemPrompt },
