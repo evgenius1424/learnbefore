@@ -30,7 +30,6 @@ const chat: Record<string, MessageWithWords> = {
         meaning: "A greeting or expression of goodwill.",
         translation: "Здравствуйте",
         languageCode: "en",
-        frequencyLevel: "high",
       },
     ],
   },

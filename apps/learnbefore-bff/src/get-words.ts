@@ -53,13 +53,12 @@ export async function* getWords(
 }
 
 const systemPrompt =
-  "Use only RFC8259 compliant compact JSON and help to extract big list of words from the text that the language learner is unlikely to know or that are crucial to the understanding of the text. " +
-  "Words should be converted to dictionary form. Duplicates, names of characters, persons or toponyms are not allowed." +
+  "Use only RFC8259 compliant compact JSON and help to extract big list of words from the text that the language learner is unlikely to know or that are crucial to the understanding of the text. Words should be converted to dictionary form. Duplicates, names of characters, persons or toponyms are not allowed." +
   "Words that do not exist in the text are not allowed."
 
 function getUserPrompt(text: string, translationLanguage = "Russian") {
   return `
-    You must extract 50 words from the text below which language learner likely do not know or need to know in order to understand the text. 
+    You must extract 40 words from the text below which language learner likely do not know or need to know in order to understand the text. 
     Please ensure the extracted words are diverse and relevant to the context of the text.
     
     Translation language is ${translationLanguage}.
@@ -71,7 +70,6 @@ function getUserPrompt(text: string, translationLanguage = "Russian") {
         "meaning": "A greeting or expression of goodwill.",   // The definition or meaning of the word.
         "translation": "Здравствуйте",                        // Translation of the word.
         "languageCode": "en",                                 // ISO 639 Language code indicating the language of the word (e.g., "en" for English).
-        "frequencyLevel": "high"                              // Frequency level of the word's usage in language, e.g., "high", "medium", "low".
       ]
     }
       

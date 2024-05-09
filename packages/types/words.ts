@@ -18,5 +18,4 @@ export type Word = {
   translation: string
   context: string
   languageCode: string
-  frequencyLevel: "high" | "medium" | "low"
 }

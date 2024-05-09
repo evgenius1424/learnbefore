@@ -19,7 +19,6 @@ export const wordSchema = z.object({
   meaning: z.string(),
   translation: z.string().optional(),
   languageCode: z.string(),
-  frequencyLevel: z.enum(["high", "medium", "low"]),
 })
 
 export type Word = z.infer<typeof wordSchema>
