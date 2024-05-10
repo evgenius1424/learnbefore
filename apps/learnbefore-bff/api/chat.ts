@@ -36,7 +36,7 @@ const chat: Record<string, MessageWithWords> = {
 }
 
 server.get("/api/chat", (req, res) =>
-  res.status(200).json([...Object.values(chat)]),
+  res.status(200).json(Object.values(chat).slice(-10)),
 )
 
 server.get("/api/words", async (req, res) => {

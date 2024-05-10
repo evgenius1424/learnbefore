@@ -1,15 +1,18 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom"
-import { RoutePaths } from "../routes.ts"
+import { SignedIn, SignedOut, SignIn } from "@clerk/clerk-react"
 import { ChatPage } from "./pages/chat-page.tsx"
+import React from "react"
 
-function App() {
+const App: React.FC = () => {
   return (
     <>
-      <BrowserRouter>
-        <Routes>
-          <Route path={RoutePaths.index} element={<ChatPage />} />
-        </Routes>
-      </BrowserRouter>
+      <SignedOut>
+        <div className="flex items-center justify-center h-screen">
+          <SignIn />
+        </div>
+      </SignedOut>
+      <SignedIn>
+        <ChatPage></ChatPage>
+      </SignedIn>
     </>
   )
 }

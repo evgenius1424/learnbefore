@@ -10,12 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@clerk/clerk-react": "^5.0.4",
     "@repo/ui": "workspace:*",
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.38",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.23.0",
     "swr": "^2.2.5",
     "tailwind": "^4.0.0"
   },
