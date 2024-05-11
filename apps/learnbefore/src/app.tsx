@@ -11,7 +11,7 @@ const App: React.FC = () => {
         </div>
       </SignedOut>
       <SignedIn>
-        <ChatPage></ChatPage>
+        <ChatPage />
       </SignedIn>
     </>
   )

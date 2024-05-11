@@ -3,12 +3,13 @@ import { startExpress } from "../src/start-express"
 import { getWords } from "../src/get-words"
 import { MessageWithWords } from "../types"
 import { waitFor } from "../src/wait-for"
+import { ClerkExpressRequireAuth } from "@clerk/clerk-sdk-node"
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
 
-const server = startExpress(parseInt(process.env.PORT || "3000"))
+const app = startExpress(parseInt(process.env.PORT || "3000"))
 
 const dummyUserID = "<userId>"
 
@@ -35,11 +36,15 @@ const chat: Record<string, MessageWithWords> = {
   },
 }
 
-server.get("/api/chat", (req, res) =>
-  res.status(200).json(Object.values(chat).slice(-10)),
+app.get("/api/chat", ClerkExpressRequireAuth({}), (req, res) =>
+  res.status(200).json(
+    Object.values(chat)
+      .filter((w) => w.words.length > 0)
+      .slice(-5),
+  ),
 )
 
-server.get("/api/words", async (req, res) => {
+app.get("/api/words", ClerkExpressRequireAuth({}), async (req, res) => {
   const text = req.query.text
   if (!text || typeof text !== "string") {
     return res
@@ -95,3 +100,7 @@ server.get("/api/words", async (req, res) => {
   res.write(`data: ${JSON.stringify(null)}\n\n`)
   res.flushHeaders()
 })
+
+const authorizedParties = ["http://localhost:3000", "https://learnbefore.com"]
+
+app.use(ClerkExpressRequireAuth({ authorizedParties }))
