@@ -77,7 +77,7 @@ export const ChatPage: React.FC = () => {
   return (
     <AppShell>
       <main className="flex-1 overflow-auto pt-14 pb-14">
-        <div className="container flex flex-col h-full rounded-lg mx-auto">
+        <div className="container flex flex-col h-full rounded-lg mx-auto pb-14">
           <div className="space-y-4 p-4">
             {messages === null ? (
               <div></div>
