@@ -76,9 +76,9 @@ export const ChatPage: React.FC = () => {
 
   return (
     <AppShell>
-      <main className="relative h-full w-full flex-1 overflow-auto transition-width">
-        <div className="container flex flex-col h-[80vh] rounded-lg mx-auto">
-          <div className="space-y-4 p-4 overflow-y-auto">
+      <main className="flex-1 overflow-auto pt-14 pb-14">
+        <div className="container flex flex-col h-full rounded-lg mx-auto pb-14">
+          <div className="space-y-4 p-4">
             {messages === null ? (
               <div></div>
             ) : messages.length === 0 ? (
@@ -110,7 +110,7 @@ export const ChatPage: React.FC = () => {
           </div>
         </div>
       </main>
-      <footer className="border-t dark:border-zinc-700 p-4">
+      <footer className="fixed bottom-0 left-0 right-0 border-t dark:border-zinc-700 p-4 z-10">
         <form onSubmit={handleSend}>
           <div className="flex items-center gap-2">
             <Input
