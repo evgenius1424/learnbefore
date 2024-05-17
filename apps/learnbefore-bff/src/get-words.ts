@@ -3,7 +3,6 @@ import OpenAI from "openai"
 import { Word, wordSchema } from "../types"
 
 export async function* getWords(
-  messageId: string,
   openAI: OpenAI,
   text: string,
 ): AsyncGenerator<Word> {
@@ -31,7 +30,6 @@ export async function* getWords(
         try {
           const word = {
             id: crypto.randomUUID(),
-            messageId: messageId,
             timestamp: new Date().toISOString(),
             ...parse(jsonObject),
           }

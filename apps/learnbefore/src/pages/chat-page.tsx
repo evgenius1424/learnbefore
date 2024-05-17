@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 import { AppShell } from "../components/app-shell"
-import { MessageWithWords, Word } from "@repo/types/words.ts"
+import { Message, Word } from "@repo/types/words.ts"
 import { Card, CardContent } from "@repo/ui/components/ui/card"
 import { Input } from "@ui/components/ui/input.tsx"
 import { Button } from "@ui/components/ui/button.tsx"
@@ -8,7 +8,7 @@ import { Button } from "@ui/components/ui/button.tsx"
 const mock = false
 
 export const ChatPage: React.FC = () => {
-  const [messages, setMessages] = useState<MessageWithWords[] | null>(null)
+  const [messages, setMessages] = useState<Message[] | null>(null)
   const [inputValue, setInputValue] = useState("")
   const [error, setError] = useState(null)
   const [sendInProgress, setSendInProgress] = useState(false)
@@ -26,7 +26,7 @@ export const ChatPage: React.FC = () => {
 
     setSendInProgress(true)
 
-    const optimisticMessage: MessageWithWords = {
+    const optimisticMessage: Message = {
       id: crypto.randomUUID(),
       userId: "",
       text: inputValue,
@@ -41,7 +41,7 @@ export const ChatPage: React.FC = () => {
     )
 
     sse.onmessage = function (event) {
-      const messageOrWord: MessageWithWords | Word = JSON.parse(event.data)
+      const messageOrWord: Message | Word = JSON.parse(event.data)
       if (!messageOrWord) {
         sse.close()
         setSendInProgress(false)
@@ -53,8 +53,8 @@ export const ChatPage: React.FC = () => {
             message.id === optimisticMessage.id ? messageOrWord : message,
           )
         } else {
-          return (prev || []).map((message) => {
-            if (message.id === messageOrWord.messageId) {
+          return (prev || []).map((message, index) => {
+            if (index == (prev || []).length - 1) {
               message.words.push(messageOrWord)
             }
             return message

@@ -1,9 +1,17 @@
 import OpenAI from "openai"
 import { startExpress } from "../src/start-express"
 import { getWords } from "../src/get-words"
-import { MessageWithWords } from "../types"
-import { waitFor } from "../src/wait-for"
+import { Message, User, Word } from "../types"
 import { ClerkExpressRequireAuth } from "@clerk/clerk-sdk-node"
+import { Store } from "../src/store" // Adjust the import path as necessary
+
+declare global {
+  namespace Express {
+    interface Request {
+      auth: { userId: string }
+    }
+  }
+}
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -11,38 +19,28 @@ const openai = new OpenAI({
 
 const app = startExpress(parseInt(process.env.PORT || "3000"))
 
-const dummyUserID = "<userId>"
+const store = new Store(process.env.MONGO_CONNECTION_STRING!!)
 
-/**
- * This chat object is an in-memory emulation of the database.
- * */
-const chat: Record<string, MessageWithWords> = {
-  "1": {
-    id: "1",
-    userId: dummyUserID,
-    text: "Hello",
-    timestamp: "2024-01-01T00:00:01Z",
-    words: [
-      {
-        id: "word1",
-        messageId: "1",
-        timestamp: "2024-01-01T00:00:01Z",
-        word: "Hello",
-        meaning: "A greeting or expression of goodwill.",
-        translation: "Здравствуйте",
-        languageCode: "en",
-      },
-    ],
-  },
-}
+const cachedUsers: Record<string, User> = {}
+store
+  .connect()
+  .then(() => {
+    console.log("Connected to the database")
+  })
+  .catch((error) => {
+    console.error("Failed to connect to the database", error)
+    process.exit(1)
+  })
 
-app.get("/api/chat", ClerkExpressRequireAuth({}), (req, res) =>
-  res.status(200).json(
-    Object.values(chat)
-      .filter((w) => w.words.length > 0)
-      .slice(-5),
-  ),
-)
+app.get("/api/chat", ClerkExpressRequireAuth({}), async function (req, res) {
+  try {
+    const user = await getUser(req.auth.userId)
+    const messages = await store.getUserMessages(user.id, 5)
+    res.status(200).json(messages)
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching chat messages" })
+  }
+})
 
 app.get("/api/words", ClerkExpressRequireAuth({}), async (req, res) => {
   const text = req.query.text
@@ -52,54 +50,56 @@ app.get("/api/words", ClerkExpressRequireAuth({}), async (req, res) => {
       .json({ message: "'text' parameter is missing or of wrong type." })
   }
 
-  const mock = req.query.mock === "true"
+  const user = await getUser(req.auth.userId)
 
   res.setHeader("Content-Type", "text/event-stream")
   res.setHeader("Cache-Control", "no-cache")
   res.setHeader("Connection", "keep-alive")
   res.flushHeaders()
 
-  const messageId = crypto.randomUUID()
-  const newMessage: MessageWithWords = {
-    id: messageId,
-    userId: dummyUserID,
-    text,
-    timestamp: new Date().toISOString(),
-    words: [],
+  let message: Message
+
+  const words: Word[] = []
+  try {
+    message = await store.createMessage({
+      userId: user.id,
+      text,
+      words,
+    })
+  } catch (error) {
+    return res.status(500).json({ message: "Error saving new message" })
   }
 
-  chat[messageId] = newMessage
-
-  res.write(`data: ${JSON.stringify(newMessage)}\n\n`)
+  res.write(`data: ${JSON.stringify(message)}\n\n`)
   res.flushHeaders()
 
-  if (mock) {
-    for (const word of text.split(" ").map((word) => ({
-      id: crypto.randomUUID(),
-      messageId,
-      timestamp: new Date().toISOString(),
-      word: word,
-      meaning: "Meaning of " + word,
-      translation: "Translation of " + word + " in other language",
-      languageCode: "en",
-      frequencyLevel: "high" as const,
-    }))) {
-      await waitFor(500)
-      newMessage.words.push(word)
-      res.write(`data: ${JSON.stringify(word)}\n\n`)
-      res.flushHeaders()
-    }
-  } else {
-    for await (const word of getWords(messageId, openai, text)) {
-      newMessage.words.push(word)
-      res.write(`data: ${JSON.stringify(word)}\n\n`)
-      res.flushHeaders()
-    }
+  for await (const word of getWords(openai, text)) {
+    words.push(word)
+    res.write(`data: ${JSON.stringify(word)}\n\n`)
+    res.flushHeaders()
+  }
+
+  try {
+    await store.updateMessageWords(message.id, words)
+  } catch (error) {
+    return res.status(500).json({ message: "Error updating message" })
   }
 
   res.write(`data: ${JSON.stringify(null)}\n\n`)
   res.flushHeaders()
 })
+
+async function getUser(userId: string) {
+  const cachedUser = cachedUsers[userId]
+
+  if (cachedUser) {
+    return cachedUser
+  }
+
+  const user = await store.findOrCreateUser(userId)
+  cachedUsers[userId] = user
+  return user
+}
 
 const authorizedParties = ["http://localhost:3000", "https://learnbefore.com"]
 
