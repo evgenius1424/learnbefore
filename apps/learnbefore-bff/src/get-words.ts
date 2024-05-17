@@ -48,7 +48,7 @@ export async function* getWords(
 
 const systemPrompt =
   "Use only RFC8259 compliant compact JSON and help to extract big list of words from the text that the language learner is unlikely to know or that are crucial to the understanding of the text. Words should be converted to dictionary form. Duplicates, names of characters, persons or toponyms are not allowed." +
-  "Words that do not exist in the text are not allowed."
+  "Words that do not exist in the text are not allowed. Returns an empty response if the text contains no words."
 
 function getUserPrompt(text: string, translationLanguage = "Russian") {
   return `
