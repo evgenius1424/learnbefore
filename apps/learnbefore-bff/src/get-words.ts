@@ -28,11 +28,7 @@ export async function* getWords(
         const jsonObject = data.slice(startIndex, endIndex + 1)
         data = data.slice(endIndex + 1)
         try {
-          const word = {
-            id: crypto.randomUUID(),
-            timestamp: new Date().toISOString(),
-            ...parse(jsonObject),
-          }
+          const word = parse(jsonObject)
           const zodParse = wordSchema.safeParse(word)
           if (zodParse.success) {
             yield word
