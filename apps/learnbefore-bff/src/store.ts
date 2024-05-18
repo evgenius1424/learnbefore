@@ -11,7 +11,7 @@ export class Store {
     const res = await messages
       .find({ userId: new ObjectId(userId) })
       .project({ _id: 0, userId: 1, text: 1, timestamp: 1, words: 1 })
-      .sort({ timestamp: -1 })
+      .sort({ timestamp: 1 })
       .limit(limit)
       .toArray()
 
