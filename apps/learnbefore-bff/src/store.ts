@@ -11,15 +11,17 @@ export class Store {
     const res = await messages
       .find({ userId: new ObjectId(userId) })
       .project({ _id: 0, userId: 1, text: 1, timestamp: 1, words: 1 })
-      .sort({ timestamp: 1 })
+      .sort({ timestamp: -1 })
       .limit(limit)
       .toArray()
 
-    return res.map((message) => ({
-      ...message,
-      userId: message.userId.toString(),
-      timestamp: message.timestamp.toISOString(),
-    })) as Message[]
+    return res
+      .map((message) => ({
+        ...message,
+        userId: message.userId.toString(),
+        timestamp: message.timestamp.toISOString(),
+      }))
+      .reverse() as Message[]
   }
 
   public async findOrCreateUser(clerkUserId: string): Promise<User> {
