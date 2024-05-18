@@ -5,13 +5,24 @@ import { Card, CardContent } from "@repo/ui/components/ui/card"
 import { Input } from "@ui/components/ui/input.tsx"
 import { Button } from "@ui/components/ui/button.tsx"
 
-const mock = false
-
 export const ChatPage: React.FC = () => {
   const [messages, setMessages] = useState<Message[] | null>(null)
   const [inputValue, setInputValue] = useState("")
   const [error, setError] = useState(null)
   const [sendInProgress, setSendInProgress] = useState(false)
+
+  const [expandedMessages, setExpandedMessages] = useState<string[]>([])
+
+  const toggleExpand = (messageId: string) => {
+    if (expandedMessages.includes(messageId)) {
+      setExpandedMessages((prev) => prev.filter((id) => id !== messageId))
+    } else {
+      setExpandedMessages((prev) => [...prev, messageId])
+    }
+  }
+
+  const isMessageExpanded = (message: Message) =>
+    expandedMessages.includes(message.id)
 
   useEffect(() => {
     fetch("/api/chat")
@@ -37,7 +48,7 @@ export const ChatPage: React.FC = () => {
     setMessages((prev = []) => [...(prev || []), optimisticMessage])
 
     const sse = new EventSource(
-      `/api/words?text=${encodeURIComponent(inputValue)}&mock=${mock}`,
+      `/api/words?text=${encodeURIComponent(inputValue)}`,
     )
 
     sse.onmessage = function (event) {
@@ -96,7 +107,22 @@ export const ChatPage: React.FC = () => {
                 <React.Fragment key={index}>
                   <div className="flex items-start gap-2 w-full">
                     <div className="w-full rounded-lg bg-zinc-200 dark:bg-zinc-700 p-2 text-left">
-                      <p className="text-sm">{message.text}</p>
+                      <p className="text-sm">
+                        {message.text.length > 1000 &&
+                        !isMessageExpanded(message)
+                          ? message.text.substring(0, 1000).trim() + "... "
+                          : message.text}
+                        {message.text.length > 1000 && (
+                          <button
+                            className="text-blue-500"
+                            onClick={() => toggleExpand(message.id)}
+                          >
+                            {isMessageExpanded(message)
+                              ? "Show less"
+                              : "Show more"}
+                          </button>
+                        )}
+                      </p>
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2 justify-center w-full">
