@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useRef } from "react"
 import { AppShell } from "../components/app-shell"
 import { Message, Word } from "@repo/types/words.ts"
 import { Card, CardContent } from "@repo/ui/components/ui/card"
@@ -10,8 +10,8 @@ export const ChatPage: React.FC = () => {
   const [inputValue, setInputValue] = useState("")
   const [error, setError] = useState(null)
   const [sendInProgress, setSendInProgress] = useState(false)
-
   const [expandedMessages, setExpandedMessages] = useState<string[]>([])
+  const messagesEndRef = useRef<HTMLDivElement | null>(null)
 
   const toggleExpand = (messageId: string) => {
     if (expandedMessages.includes(messageId)) {
@@ -30,6 +30,11 @@ export const ChatPage: React.FC = () => {
       .then(setMessages)
       .catch(setError)
   }, [])
+
+  useEffect(() => {
+    if (messagesEndRef.current)
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" })
+  }, [messages])
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -52,7 +57,7 @@ export const ChatPage: React.FC = () => {
     )
 
     sse.onmessage = function (event) {
-      const messageOrWord: Message | Word = JSON.parse(event.data)
+      const messageOrWord: Message | Word | null = JSON.parse(event.data)
       if (!messageOrWord) {
         sse.close()
         setSendInProgress(false)
@@ -103,8 +108,8 @@ export const ChatPage: React.FC = () => {
                 </p>
               </div>
             ) : (
-              messages.map((message, index) => (
-                <React.Fragment key={index}>
+              messages.map((message, messageIndex) => (
+                <React.Fragment key={messageIndex}>
                   <div className="flex items-start gap-2 w-full">
                     <div className="w-full rounded-lg bg-zinc-200 dark:bg-zinc-700 p-2 text-left">
                       <p className="text-sm">
@@ -126,13 +131,14 @@ export const ChatPage: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2 justify-center w-full">
-                    {message.words.map((word, index) => (
-                      <WordCard key={index} word={word} />
+                    {message.words.map((word, wordIndex) => (
+                      <WordCard key={wordIndex} word={word} />
                     ))}
                   </div>
                 </React.Fragment>
               ))
             )}
+            <div ref={messagesEndRef}></div>
           </div>
         </div>
       </main>
