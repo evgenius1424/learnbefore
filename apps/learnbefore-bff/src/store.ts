@@ -9,7 +9,7 @@ export class Store {
   public async getUserMessages(userId: string, limit = 10): Promise<Message[]> {
     const messages = await this.collection("messages")
     const res = await messages
-      .find({ userId: new ObjectId(userId) })
+      .find({ userId: new ObjectId(userId), words: { $ne: [] } })
       .project({ _id: 0, userId: 1, text: 1, timestamp: 1, words: 1 })
       .sort({ timestamp: -1 })
       .limit(limit)
