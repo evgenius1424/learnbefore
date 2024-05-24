@@ -15,7 +15,7 @@ and persistence. While development remains active, the core functionality is ava
 
 ## How to use
 
-You can login to the website and see this chat page. Entering the text and clicking Send will give you a list of likely
+You can login to the website and see the chat page. Entering the text and clicking Send will give you a list of likely
 unfamiliar words that you can learn in advance.
 
 ## Social Media Accounts
