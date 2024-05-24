@@ -9,22 +9,22 @@
     "dev": "nodemon api/chat.ts"
   },
   "dependencies": {
-    "@clerk/clerk-sdk-node": "^5.0.5",
+    "@clerk/clerk-sdk-node": "^5.0.9",
     "@types/mongodb": "^4.0.7",
-    "best-effort-json-parser": "^1.1.0",
+    "best-effort-json-parser": "^1.1.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "mongodb": "^6.6.1",
+    "mongodb": "^6.6.2",
     "natural": "^7.0.5",
-    "openai": "^4.44.0",
+    "openai": "^4.47.1",
     "vitest": "^1.6.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
-    "@types/node": "^20.12.11",
+    "@types/node": "^20.12.12",
     "nodemon": "^3.1.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
