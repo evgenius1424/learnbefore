@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@clerk/clerk-react": "^5.2.1",
+    "@clerk/clerk-react": "^5.2.2",
     "@repo/ui": "workspace:*",
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.38",
@@ -30,6 +30,6 @@
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.7",
     "typescript": "^5.4.5",
-    "vite": "^5.2.11"
+    "vite": "^5.2.12"
   }
 }
