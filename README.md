@@ -1,5 +1,7 @@
 # Learnbefore
 
+[![Build](https://github.com/evgenius1424/learnbefore/actions/workflows/build.yml/badge.svg)](https://github.com/evgenius1424/learnbefore/actions/workflows/build.yml)
+
 Learnbefore is a platform designed to help you discover unfamiliar words, allowing you to learn them in advance, before
 encountering them in films, books, blogs, etc.
 
