@@ -3,7 +3,9 @@
 Learnbefore is a platform designed to help you discover unfamiliar words, allowing you to learn them in advance, before
 encountering them in films, books, blogs, etc.
 
-  <img src="img/learnie.jpg" alt="Learnie" style="max-width:300px; max-height:300px;">
+<p align="center">
+  <img src="img/learnie.jpg" alt="Learnie" style="width: 200px">
+</p>
 
 ## Development Status
 

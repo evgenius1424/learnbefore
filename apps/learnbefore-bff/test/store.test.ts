@@ -1,7 +1,6 @@
 import { test } from "vitest"
-import { Store } from "../src/store"
 
-test("database playground", async () => {
+test("store playground", async () => {
   // const store = new Store(
   //   "mongodb+srv://evgenius1424:U3f2phCLnjuBvcbn@learnbefore.9jfw2ya.mongodb.net/",
   // )
