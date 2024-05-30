@@ -5,6 +5,7 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
+    "volta:install": "curl https://get.volta.sh | bash",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
@@ -13,7 +14,10 @@
     "prettier": "^3.2.5",
     "turbo": "^1.13.3"
   },
-  "packageManager": "pnpm@9.0.6",
+  "volta": {
+    "node": "22.2.0"
+  },
+  "packageManager": "pnpm@9.1.4",
   "engines": {
     "node": ">=18"
   }
