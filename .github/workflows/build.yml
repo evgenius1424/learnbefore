@@ -14,21 +14,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
+      - name: Install Volta
+        run: |
+          curl https://get.volta.sh | bash
+          echo "$HOME/.volta/bin" >> $GITHUB_PATH
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9.0.6
-          run_install: false
+      - name: Install Node.js with Volta
+        run: volta install node
+
+      - name: Set PNPM version
+        run: |
+          echo "PNPM_VERSION=$(jq -r '.packageManager' package.json | awk -F'@' '{print $2}')" >> $GITHUB_ENV
+
+      - name: Install pnpm using Volta
+        run: volta install pnpm@${{ env.PNPM_VERSION }}
 
       - name: Get pnpm store directory
-        shell: bash
         run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+          STORE_PATH=$(pnpm store path --silent)
+          echo "STORE_PATH=$STORE_PATH" >> $GITHUB_ENV
 
       - name: Setup pnpm cache
         uses: actions/cache@v4
