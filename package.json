@@ -12,7 +12,7 @@
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "prettier": "^3.3.0",
-    "turbo": "^1.13.3"
+    "turbo": "^2.0.1"
   },
   "volta": {
     "node": "22.2.0"

@@ -1,13 +1,13 @@
 {
-  "name": "learnbefore",
+  "name": "learnbefore-ui",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "NODE_OPTIONS='--max-http-header-size=512000' vite",
+    "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "NODE_OPTIONS='--max-http-header-size=512000' vite preview"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.2.2",
