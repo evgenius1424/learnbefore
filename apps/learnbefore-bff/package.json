@@ -6,7 +6,7 @@
   "scripts": {
     "build": "npx tsc",
     "preview": "node dist/api/chat.js",
-    "dev": "NODE_OPTIONS='--max-http-header-size=512000' nodemon api/chat.ts"
+    "dev": "nodemon api/chat.ts"
   },
   "dependencies": {
     "@clerk/clerk-sdk-node": "^5.0.9",

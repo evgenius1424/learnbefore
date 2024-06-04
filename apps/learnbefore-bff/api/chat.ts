@@ -6,6 +6,7 @@ import { ClerkExpressRequireAuth } from "@clerk/clerk-sdk-node"
 import { Store } from "../src/store"
 import { waitFor } from "../src/waitFor"
 import { splitText } from "../src/splitText"
+import { equalsIgnoringCase } from "../src/equalsIgnoringCase"
 
 declare global {
   namespace Express {
@@ -44,55 +45,52 @@ app.get("/api/chat", ClerkExpressRequireAuth({}), async function (req, res) {
   }
 })
 
-app.get("/api/words", ClerkExpressRequireAuth({}), async (req, res) => {
-  const text = req.query.text
+app.post("/api/messages", ClerkExpressRequireAuth({}), async (req, res) => {
+  const text = req.body.text
   if (!text || typeof text !== "string") {
     return res
       .status(400)
       .json({ message: "'text' parameter is missing or of wrong type." })
   }
-
   const user = await getUser(req.auth.userId)
+
+  let message: Message = await store.createMessage({
+    userId: user.id,
+    text,
+    words: [],
+  })
+  res.json({ messageId: message.id })
+})
+
+app.get("/api/words", ClerkExpressRequireAuth({}), async (req, res) => {
+  const messageId = req.query.messageId
+  if (!messageId || typeof messageId !== "string") {
+    return res
+      .status(400)
+      .json({ message: "'messageId' parameter is missing or of wrong type." })
+  }
 
   res.setHeader("Content-Type", "text/event-stream")
   res.setHeader("Cache-Control", "no-cache")
   res.setHeader("Connection", "keep-alive")
   res.flushHeaders()
 
-  let message: Message
+  const message = await store.getMessage(messageId)
 
-  const words: Word[] = []
-  try {
-    message = await store.createMessage({
-      userId: user.id,
-      text,
-      words,
-    })
-  } catch (error) {
-    return res.status(500).json({ message: "Error saving new message" })
-  }
-
-  res.write(`data: ${JSON.stringify(message)}\n\n`)
-  res.flushHeaders()
-
-  for (const chunk of splitText(text, 6000)) {
+  for (const chunk of splitText(message.text, 6000)) {
     for await (const word of getWordsRetryable(openai, chunk)) {
-      const isDuplicate = words.find((w) =>
+      const isDuplicate = message.words.find((w) =>
         equalsIgnoringCase(w.word, word.word),
       )
       if (!isDuplicate) {
-        words.push(word)
+        message.words.push(word)
         res.write(`data: ${JSON.stringify(word)}\n\n`)
         res.flushHeaders()
       }
     }
   }
 
-  try {
-    await store.updateMessageWords(message.id, words)
-  } catch (error) {
-    return res.status(500).json({ message: "Error updating message" })
-  }
+  await store.updateMessageWords(message.id, message.words)
 
   res.write(`data: ${JSON.stringify(null)}\n\n`)
   res.flushHeaders()

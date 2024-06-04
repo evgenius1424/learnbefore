@@ -24,6 +24,24 @@ export class Store {
       .reverse() as Message[]
   }
 
+  public async getMessage(messageId: string): Promise<Message> {
+    const messages = await this.collection("messages")
+
+    const message = await messages.findOne({ _id: new ObjectId(messageId) })
+    if (!message) {
+      throw new Error(`Message with id ${messageId} not found`)
+    }
+    const { _id: id, userId, text, timestamp, words } = message
+
+    return {
+      id: id.toString(),
+      userId: userId.toString(),
+      text,
+      timestamp: timestamp.toISOString(),
+      words,
+    }
+  }
+
   public async findOrCreateUser(clerkUserId: string): Promise<User> {
     const users = await this.collection("users")
 

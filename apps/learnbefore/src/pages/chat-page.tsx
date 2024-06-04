@@ -52,17 +52,27 @@ export const ChatPage: React.FC = () => {
 
     setMessages((prev = []) => [...(prev || []), optimisticMessage])
 
-    const sse = new EventSource(
-      `/api/words?text=${encodeURIComponent(inputValue)}`,
-    )
+    const createMessageResponse = await fetch("/api/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ text: inputValue }),
+    })
+
+    const { messageId } = await createMessageResponse.json()
+
+    const sse = new EventSource(`/api/words?messageId=${messageId}`)
 
     sse.onmessage = function (event) {
       const messageOrWord: Message | Word | null = JSON.parse(event.data)
+
       if (!messageOrWord) {
         sse.close()
         setSendInProgress(false)
         return
       }
+
       setMessages((prev = []) => {
         if ("words" in messageOrWord) {
           return (prev || []).map((message) =>
@@ -87,7 +97,6 @@ export const ChatPage: React.FC = () => {
 
     setInputValue("")
   }
-
   if (error) return <div>Error occurred: {error}</div>
 
   return (
