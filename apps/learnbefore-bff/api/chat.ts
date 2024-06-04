@@ -3,7 +3,9 @@ import { startExpress } from "../src/start-express"
 import { getWords } from "../src/get-words"
 import { Message, User, Word } from "../types"
 import { ClerkExpressRequireAuth } from "@clerk/clerk-sdk-node"
-import { Store } from "../src/store" // Adjust the import path as necessary
+import { Store } from "../src/store"
+import { waitFor } from "../src/waitFor"
+import { splitText } from "../src/splitText"
 
 declare global {
   namespace Express {
@@ -73,10 +75,17 @@ app.get("/api/words", ClerkExpressRequireAuth({}), async (req, res) => {
   res.write(`data: ${JSON.stringify(message)}\n\n`)
   res.flushHeaders()
 
-  for await (const word of getWords(openai, text)) {
-    words.push(word)
-    res.write(`data: ${JSON.stringify(word)}\n\n`)
-    res.flushHeaders()
+  for (const chunk of splitText(text, 6000)) {
+    for await (const word of getWordsRetryable(openai, chunk)) {
+      const isDuplicate = words.find((w) =>
+        equalsIgnoringCase(w.word, word.word),
+      )
+      if (!isDuplicate) {
+        words.push(word)
+        res.write(`data: ${JSON.stringify(word)}\n\n`)
+        res.flushHeaders()
+      }
+    }
   }
 
   try {
@@ -104,3 +113,31 @@ async function getUser(userId: string) {
 const authorizedParties = ["http://localhost:3000", "https://learnbefore.com"]
 
 app.use(ClerkExpressRequireAuth({ authorizedParties }))
+
+// TODO: actually we do not need do to retry if the text is too big, or other API related issues.
+async function* getWordsRetryable(
+  openai: OpenAI,
+  text: string,
+  maxRetries = 3,
+): AsyncIterableIterator<Word> {
+  let retryCount = 0
+  let emitted = false
+
+  do {
+    for await (const word of getWords(openai, text)) {
+      emitted = true
+      yield word
+    }
+    if (emitted) {
+      return
+    }
+    retryCount++
+    if (retryCount != maxRetries) {
+      await waitFor(200)
+    }
+  } while (retryCount <= maxRetries)
+
+  if (!emitted) {
+    throw new Error("Maximum retries exceeded without finding any words.")
+  }
+}
