@@ -28,14 +28,13 @@ export async function* getWords(
         const jsonObject = data.slice(startIndex, endIndex + 1)
         data = data.slice(endIndex + 1)
         try {
-          const word = parse(jsonObject)
-          const zodParse = wordSchema.safeParse(word)
+          const zodParse = wordSchema.safeParse(parse(jsonObject))
           if (zodParse.success) {
-            yield word
+            yield { ...zodParse.data, word: zodParse.data.word.toLowerCase() }
           } else {
             console.error(`Zod validation error.`)
             console.error("Word validation error. " + zodParse.error.message)
-            console.error(`Parsed content: `, word)
+            console.error(`Parsed content: `, parse(jsonObject))
           }
         } catch (err) {
           console.error("Error while parsing JSON:", err)
