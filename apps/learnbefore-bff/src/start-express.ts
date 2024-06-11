@@ -16,12 +16,19 @@ export function startExpress(
   server.use(express.urlencoded({ limit: "1mb", extended: true }))
   server.use(cors({ origin }))
 
-  server.use((err: { stack: unknown }, req: Request, res: Response) => {
-    console.error(err.stack)
-    res.status(500).send("Unexpected server error")
-  })
-
   server.use(ClerkExpressRequireAuth({ authorizedParties }))
+
+  server.use(
+    (
+      err: { stack: unknown },
+      req: Request,
+      res: Response,
+      next: NextFunction,
+    ) => {
+      console.error(err.stack)
+      res.status(500).send("Unexpected server error")
+    },
+  )
 
   server.listen(port, () => console.log(`Server ready on port ${port}.`))
 
