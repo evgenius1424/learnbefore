@@ -87,9 +87,6 @@ importers:
       '@clerk/clerk-sdk-node':
         specifier: ^5.0.9
         version: 5.0.9(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@types/mongodb':
-        specifier: ^4.0.7
-        version: 4.0.7(socks@2.8.3)
       best-effort-json-parser:
         specifier: ^1.1.2
         version: 1.1.2
@@ -102,6 +99,9 @@ importers:
       express:
         specifier: ^4.19.2
         version: 4.19.2
+      express-async-handler:
+        specifier: ^1.2.0
+        version: 1.2.0
       mongodb:
         specifier: ^6.7.0
         version: 6.7.0(socks@2.8.3)
@@ -842,10 +842,6 @@ packages:
 
   '@types/minimatch@5.1.2':
     resolution: {integrity: sha512-K0VQKziLUWkVKiRVrx4a40iPaxTUefQmjtkQofBkYRcoaaL/8rhwDWww9qWbrgicNOgnpIsMxyNIUM4+n6dUIA==}
-
-  '@types/mongodb@4.0.7':
-    resolution: {integrity: sha512-lPUYPpzA43baXqnd36cZ9xxorprybxXDzteVKCPAdp14ppHtFJHnXYvNpmBvtMUTb5fKXVv6sVbzo1LHkWhJlw==}
-    deprecated: mongodb provides its own types. @types/mongodb is no longer needed.
 
   '@types/node-fetch@2.6.11':
     resolution: {integrity: sha512-24xFj9R5+rfQJLRyM56qh+wnVSYhyXC2tkoBndtY0U+vubqNsYXGjufB2nn8Q6gt0LrARwL6UBtMCSVCwl4B1g==}
@@ -2019,6 +2015,9 @@ packages:
   execa@8.0.1:
     resolution: {integrity: sha512-VyhnebXciFV2DESc+p6B+y0LjSm0krU4OgJN44qFAhBY0TJ+1V61tYD2+wHusZ6F9n5K+vl8k0sTy7PEfV4qpg==}
     engines: {node: '>=16.17'}
+
+  express-async-handler@1.2.0:
+    resolution: {integrity: sha512-rCSVtPXRmQSW8rmik/AIb2P0op6l7r1fMW538yyvTMltCO4xQEWMmobfrIxN2V1/mVrgxB8Az3reYF6yUZw37w==}
 
   express@4.16.4:
     resolution: {integrity: sha512-j12Uuyb4FMrd/qQAm6uCHAkPtO8FDTRJZBDd5D2KOL2eLaz1yUNdUB/NOIyq0iU4q4cFarsUCrnFDPBcnksuOg==}
@@ -4814,18 +4813,6 @@ snapshots:
 
   '@types/minimatch@5.1.2': {}
 
-  '@types/mongodb@4.0.7(socks@2.8.3)':
-    dependencies:
-      mongodb: 6.7.0(socks@2.8.3)
-    transitivePeerDependencies:
-      - '@aws-sdk/credential-providers'
-      - '@mongodb-js/zstd'
-      - gcp-metadata
-      - kerberos
-      - mongodb-client-encryption
-      - snappy
-      - socks
-
   '@types/node-fetch@2.6.11':
     dependencies:
       '@types/node': 20.14.2
@@ -6405,6 +6392,8 @@ snapshots:
       onetime: 6.0.0
       signal-exit: 4.1.0
       strip-final-newline: 3.0.0
+
+  express-async-handler@1.2.0: {}
 
   express@4.16.4:
     dependencies:

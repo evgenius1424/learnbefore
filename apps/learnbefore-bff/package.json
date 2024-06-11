@@ -10,11 +10,11 @@
   },
   "dependencies": {
     "@clerk/clerk-sdk-node": "^5.0.9",
-    "@types/mongodb": "^4.0.7",
     "best-effort-json-parser": "^1.1.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "express-async-handler": "^1.2.0",
     "mongodb": "^6.7.0",
     "openai": "^4.48.1",
     "vitest": "^1.6.0",

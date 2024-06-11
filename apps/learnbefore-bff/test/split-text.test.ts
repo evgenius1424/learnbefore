@@ -1,5 +1,5 @@
 import { expect, test } from "vitest"
-import { splitText } from "../src/splitText"
+import { splitText } from "../src/split-text"
 
 test("splitText", () => {
   const text =

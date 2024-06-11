@@ -5,8 +5,9 @@ import { Message, User, Word } from "../types"
 import { ClerkExpressRequireAuth } from "@clerk/clerk-sdk-node"
 import { Store } from "../src/store"
 import { waitFor } from "../src/waitFor"
-import { splitText } from "../src/splitText"
-import { equalsIgnoringCase } from "../src/equalsIgnoringCase"
+import { splitText } from "../src/split-text"
+import { equalsIgnoringCase } from "../src/equals-ignoring-case"
+import expressAsyncHandler from "express-async-handler"
 
 declare global {
   namespace Express {
@@ -35,66 +36,81 @@ store
     process.exit(1)
   })
 
-app.get("/api/chat", ClerkExpressRequireAuth({}), async function (req, res) {
-  try {
+app.get(
+  "/api/chat",
+  ClerkExpressRequireAuth(),
+  expressAsyncHandler(async function (req, res) {
+    try {
+      const user = await getUser(req.auth.userId)
+      const messages = await store.getUserMessages(user.id, 5)
+      res.status(200).json(messages)
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching chat messages" })
+    }
+  }),
+)
+
+app.post(
+  "/api/messages",
+  ClerkExpressRequireAuth(),
+  expressAsyncHandler(async (req, res) => {
+    const text = req.body.text
+    if (!text || typeof text !== "string") {
+      res
+        .status(400)
+        .json({ message: "'text' parameter is missing or of wrong type." })
+      return
+    }
+
     const user = await getUser(req.auth.userId)
-    const messages = await store.getUserMessages(user.id, 5)
-    res.status(200).json(messages)
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching chat messages" })
-  }
-})
 
-app.post("/api/messages", ClerkExpressRequireAuth({}), async (req, res) => {
-  const text = req.body.text
-  if (!text || typeof text !== "string") {
-    return res
-      .status(400)
-      .json({ message: "'text' parameter is missing or of wrong type." })
-  }
-  const user = await getUser(req.auth.userId)
+    const message: Message = await store.createMessage({
+      userId: user.id,
+      text,
+      words: [],
+    })
+    res.json({ messageId: message.id })
+  }),
+)
 
-  let message: Message = await store.createMessage({
-    userId: user.id,
-    text,
-    words: [],
-  })
-  res.json({ messageId: message.id })
-})
+app.get(
+  "/api/words",
+  ClerkExpressRequireAuth(),
+  expressAsyncHandler(async (req, res) => {
+    const messageId = req.query.messageId
+    if (!messageId || typeof messageId !== "string") {
+      res
+        .status(400)
+        .json({ message: "'messageId' parameter is missing or of wrong type." })
+      return
+    }
 
-app.get("/api/words", ClerkExpressRequireAuth({}), async (req, res) => {
-  const messageId = req.query.messageId
-  if (!messageId || typeof messageId !== "string") {
-    return res
-      .status(400)
-      .json({ message: "'messageId' parameter is missing or of wrong type." })
-  }
+    res.setHeader("Content-Type", "text/event-stream")
+    res.setHeader("Cache-Control", "no-cache")
+    res.setHeader("Connection", "keep-alive")
+    res.flushHeaders()
 
-  res.setHeader("Content-Type", "text/event-stream")
-  res.setHeader("Cache-Control", "no-cache")
-  res.setHeader("Connection", "keep-alive")
-  res.flushHeaders()
+    const message = await store.getMessage(messageId)
 
-  const message = await store.getMessage(messageId)
-
-  for (const chunk of splitText(message.text, 6000)) {
-    for await (const word of getWordsRetryable(openai, chunk)) {
-      const isDuplicate = message.words.find((w) =>
-        equalsIgnoringCase(w.word, word.word),
-      )
-      if (!isDuplicate) {
-        message.words.push(word)
-        res.write(`data: ${JSON.stringify(word)}\n\n`)
-        res.flushHeaders()
+    for (const chunk of splitText(message.text, 6000)) {
+      for await (const word of getWordsRetryable(openai, chunk)) {
+        const isDuplicate = message.words.find((w) =>
+          equalsIgnoringCase(w.word, word.word),
+        )
+        if (!isDuplicate) {
+          message.words.push(word)
+          res.write(`data: ${JSON.stringify(word)}\n\n`)
+          res.flushHeaders()
+        }
       }
     }
-  }
 
-  await store.updateMessageWords(message.id, message.words)
+    await store.updateMessageWords(message.id, message.words)
 
-  res.write(`data: ${JSON.stringify(null)}\n\n`)
-  res.flushHeaders()
-})
+    res.write(`data: ${JSON.stringify(null)}\n\n`)
+    res.flushHeaders()
+  }),
+)
 
 async function getUser(userId: string) {
   const cachedUser = cachedUsers[userId]
@@ -107,10 +123,6 @@ async function getUser(userId: string) {
   cachedUsers[userId] = user
   return user
 }
-
-const authorizedParties = ["http://localhost:3000", "https://learnbefore.com"]
-
-app.use(ClerkExpressRequireAuth({ authorizedParties }))
 
 // TODO: actually we do not need do to retry if the text is too big, or other API related issues.
 async function* getWordsRetryable(
