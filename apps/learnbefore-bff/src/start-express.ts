@@ -3,10 +3,11 @@ import cors from "cors"
 import { ClerkExpressRequireAuth } from "@clerk/clerk-sdk-node"
 
 export function startExpress(
-  port: number,
+  port: number = 3000,
   origin: string = "*",
   authorizedParties: string[] = [
     "http://localhost:3000",
+    "http://localhost:5173",
     "https://learnbefore.com",
   ],
 ): Express {

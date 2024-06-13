@@ -1,3 +1,4 @@
+// TODO: add split on words (using whitespace) or just cut the string.
 export function splitText(text: string, chunkSize: number = 3000): string[] {
   const sentences = text.match(/[^.!?]+[^.!?]+/g) || []
   const chunks: string[] = []
