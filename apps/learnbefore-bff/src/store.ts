@@ -59,10 +59,10 @@ export class Store {
   }
 
   public async createMessage(
-    message: Omit<Message, "id" | "timestamp">,
+    message: Omit<Message, "id" | "timestamp" | "words">,
   ): Promise<Message> {
     const messages = await this.collection("messages")
-    const { userId, text, words } = message
+    const { userId, text } = message
 
     const timestamp = new Date()
 
@@ -70,7 +70,7 @@ export class Store {
       userId: new ObjectId(userId),
       text,
       timestamp,
-      words,
+      words: [],
     })
 
     return {
@@ -78,7 +78,7 @@ export class Store {
       userId,
       text,
       timestamp: timestamp.toISOString(),
-      words: words,
+      words: [],
     }
   }
 

@@ -4,10 +4,10 @@ import { getWords } from "../src/get-words"
 import { Message, User, Word } from "../types"
 import { ClerkExpressRequireAuth } from "@clerk/clerk-sdk-node"
 import { Store } from "../src/store"
-import { waitFor } from "../src/waitFor"
 import { splitText } from "../src/split-text"
 import { equalsIgnoringCase } from "../src/equals-ignoring-case"
 import expressAsyncHandler from "express-async-handler"
+import { retryableGenerator } from "../src/retryable-generator"
 
 declare global {
   namespace Express {
@@ -67,7 +67,6 @@ app.post(
     const message: Message = await store.createMessage({
       userId: user.id,
       text,
-      words: [],
     })
     res.json({ messageId: message.id })
   }),
@@ -93,7 +92,9 @@ app.get(
     const message = await store.getMessage(messageId)
 
     for (const chunk of splitText(message.text, 6000)) {
-      for await (const word of getWordsRetryable(openai, chunk)) {
+      for await (const word of retryableGenerator(() =>
+        getWords(openai, chunk),
+      )) {
         const isDuplicate = message.words.find((w) =>
           equalsIgnoringCase(w.word, word.word),
         )
@@ -122,32 +123,4 @@ async function getUser(userId: string) {
   const user = await store.findOrCreateUser(userId)
   cachedUsers[userId] = user
   return user
-}
-
-// TODO: actually we do not need do to retry if the text is too big, or other API related issues.
-async function* getWordsRetryable(
-  openai: OpenAI,
-  text: string,
-  maxRetries = 3,
-): AsyncIterableIterator<Word> {
-  let retryCount = 0
-  let emitted = false
-
-  do {
-    for await (const word of getWords(openai, text)) {
-      emitted = true
-      yield word
-    }
-    if (emitted) {
-      return
-    }
-    retryCount++
-    if (retryCount != maxRetries) {
-      await waitFor(200)
-    }
-  } while (retryCount <= maxRetries)
-
-  if (!emitted) {
-    throw new Error("Maximum retries exceeded without finding any words.")
-  }
 }
