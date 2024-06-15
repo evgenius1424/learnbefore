@@ -216,7 +216,6 @@ export const ChatPage: React.FC = () => {
                 onChange={handleFileChange}
                 type="file"
                 accept="image/jpeg, text/plain"
-                capture="environment"
                 className="hidden"
                 aria-hidden="true"
               />
