@@ -11,6 +11,7 @@ export const ChatPage: React.FC = () => {
   const [inputValue, setInputValue] = useState("")
   const [error, setError] = useState(null)
   const [sendInProgress, setSendInProgress] = useState(false)
+  const [fileUploadInProgress, setFileUploadInProgress] = useState(false)
   const [expandedMessages, setExpandedMessages] = useState<string[]>([])
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -26,7 +27,8 @@ export const ChatPage: React.FC = () => {
   const isMessageExpanded = (message: Message) =>
     expandedMessages.includes(message.id)
 
-  const handleFileUploadClick = () => {
+  const handleFileUploadClick = (e: React.MouseEvent) => {
+    e.preventDefault()
     if (fileInputRef.current) {
       fileInputRef.current.click()
     }
@@ -35,6 +37,7 @@ export const ChatPage: React.FC = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0]
+      setFileUploadInProgress(true)
 
       const extension = file.name.split(".").pop()
 
@@ -42,9 +45,11 @@ export const ChatPage: React.FC = () => {
         Tesseract.recognize(file, "eng", { logger: (m) => console.log(m) })
           .then(({ data: { text } }) => {
             setInputValue(text)
+            setFileUploadInProgress(false)
           })
           .catch((error) => {
             console.error("Error in Tesseract recognition:", error)
+            setFileUploadInProgress(false)
           })
       } else {
         const reader = new FileReader()
@@ -52,6 +57,7 @@ export const ChatPage: React.FC = () => {
           if (event.target?.readyState === FileReader.DONE) {
             const text = event.target.result as string
             setInputValue(text)
+            setFileUploadInProgress(false)
           }
         }
         reader.readAsText(file)
@@ -197,7 +203,11 @@ export const ChatPage: React.FC = () => {
               onChange={(e) => setInputValue(e.target.value)}
             />
             <label onClick={handleFileUploadClick}>
-              <Button variant="ghost" size="icon">
+              <Button
+                variant="ghost"
+                size="icon"
+                disabled={fileUploadInProgress || sendInProgress}
+              >
                 <PaperclipIcon className="w-4 h-4" />
               </Button>
               <input
