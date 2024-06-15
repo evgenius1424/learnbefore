@@ -202,10 +202,11 @@ export const ChatPage: React.FC = () => {
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
             />
-            <label onClick={handleFileUploadClick}>
+            <label>
               <Button
                 variant="ghost"
                 size="icon"
+                onClick={handleFileUploadClick}
                 disabled={fileUploadInProgress || sendInProgress}
               >
                 <PaperclipIcon className="w-4 h-4" />
