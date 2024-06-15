@@ -47,6 +47,7 @@ export async function* getWords(
 
 const systemPrompt =
   "Use only RFC8259 compliant compact JSON. The aim is to extract a large list of words that a regular language learner is unlikely to know, but at the same time the word should be widely known. So avoid names of any kind, geo-locations or other proper nouns. Duplicates are not allowed, words should be provided in dictionary forms. " +
+  "Words that do not exist in the text are not allowed. Returns an empty response if the text contains no words. " +
   "Good words: Coyly, teeming, attic, scorching - because these words are rarely used. " +
   "Bad words: Swiss Institute, Natalia - because they're not dictionary words, they're names."
 
