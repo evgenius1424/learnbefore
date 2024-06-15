@@ -1,9 +1,10 @@
-import React, { useEffect, useState, useRef } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { AppShell } from "../components/app-shell"
 import { Message, Word } from "@repo/types/words.ts"
 import { Card, CardContent } from "@repo/ui/components/ui/card"
 import { Input } from "@ui/components/ui/input.tsx"
 import { Button } from "@ui/components/ui/button.tsx"
+import Tesseract from "tesseract.js"
 
 export const ChatPage: React.FC = () => {
   const [messages, setMessages] = useState<Message[] | null>(null)
@@ -12,6 +13,7 @@ export const ChatPage: React.FC = () => {
   const [sendInProgress, setSendInProgress] = useState(false)
   const [expandedMessages, setExpandedMessages] = useState<string[]>([])
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const toggleExpand = (messageId: string) => {
     if (expandedMessages.includes(messageId)) {
@@ -23,6 +25,39 @@ export const ChatPage: React.FC = () => {
 
   const isMessageExpanded = (message: Message) =>
     expandedMessages.includes(message.id)
+
+  const handleFileUploadClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click()
+    }
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0]
+
+      const extension = file.name.split(".").pop()
+
+      if (extension === "jpg") {
+        Tesseract.recognize(file, "eng", { logger: (m) => console.log(m) })
+          .then(({ data: { text } }) => {
+            setInputValue(text)
+          })
+          .catch((error) => {
+            console.error("Error in Tesseract recognition:", error)
+          })
+      } else {
+        const reader = new FileReader()
+        reader.onload = (event: ProgressEvent<FileReader>) => {
+          if (event.target?.readyState === FileReader.DONE) {
+            const text = event.target.result as string
+            setInputValue(text)
+          }
+        }
+        reader.readAsText(file)
+      }
+    }
+  }
 
   useEffect(() => {
     fetch("/api/chat")
@@ -161,11 +196,19 @@ export const ChatPage: React.FC = () => {
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
             />
-            <label>
+            <label onClick={handleFileUploadClick}>
               <Button variant="ghost" size="icon">
                 <PaperclipIcon className="w-4 h-4" />
               </Button>
-              <input type="file" className="hidden" aria-hidden="true" />
+              <input
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                type="file"
+                accept="image/jpeg, text/plain"
+                capture="environment"
+                className="hidden"
+                aria-hidden="true"
+              />
             </label>
             <Button disabled={sendInProgress} type="submit">
               Send
