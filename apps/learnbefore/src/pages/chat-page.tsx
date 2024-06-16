@@ -4,7 +4,9 @@ import { Message, Word } from "@repo/types/words.ts"
 import { Card, CardContent } from "@repo/ui/components/ui/card"
 import { Input } from "@ui/components/ui/input.tsx"
 import { Button } from "@ui/components/ui/button.tsx"
-import Tesseract from "tesseract.js"
+import { PaperclipIcon } from "../icons/paperclip-icon.tsx"
+import { getTextFromFile } from "../helpers/get-text-from-file.ts"
+import { createMessageFetcher } from "../helpers/fetchers.ts"
 
 export const ChatPage: React.FC = () => {
   const [messages, setMessages] = useState<Message[] | null>(null)
@@ -34,34 +36,16 @@ export const ChatPage: React.FC = () => {
     }
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0]
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.length) {
+      return
+    }
+    try {
       setFileUploadInProgress(true)
-
-      const extension = file.name.split(".").pop()
-
-      if (extension === "jpg") {
-        Tesseract.recognize(file, "eng", { logger: (m) => console.log(m) })
-          .then(({ data: { text } }) => {
-            setInputValue(text)
-            setFileUploadInProgress(false)
-          })
-          .catch((error) => {
-            console.error("Error in Tesseract recognition:", error)
-            setFileUploadInProgress(false)
-          })
-      } else {
-        const reader = new FileReader()
-        reader.onload = (event: ProgressEvent<FileReader>) => {
-          if (event.target?.readyState === FileReader.DONE) {
-            const text = event.target.result as string
-            setInputValue(text)
-            setFileUploadInProgress(false)
-          }
-        }
-        reader.readAsText(file)
-      }
+      const text = await getTextFromFile(e.target.files[0])
+      setInputValue(text)
+    } finally {
+      setFileUploadInProgress(false)
     }
   }
 
@@ -72,10 +56,7 @@ export const ChatPage: React.FC = () => {
       .catch(setError)
   }, [])
 
-  useEffect(() => {
-    if (messagesEndRef.current)
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" })
-  }, [messages])
+  useScrollToRef(messagesEndRef, messages)
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -93,13 +74,7 @@ export const ChatPage: React.FC = () => {
 
     setMessages((prev = []) => [...(prev || []), optimisticMessage])
 
-    const createMessageResponse = await fetch("/api/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ text: inputValue }),
-    })
+    const createMessageResponse = await createMessageFetcher(inputValue)
 
     const { messageId } = await createMessageResponse.json()
 
@@ -145,18 +120,8 @@ export const ChatPage: React.FC = () => {
       <main className="flex-1 overflow-auto pt-14 pb-14">
         <div className="container flex flex-col h-full rounded-lg mx-auto pb-14">
           <div className="space-y-4 p-4">
-            {messages === null ? (
-              <div></div>
-            ) : messages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full">
-                <h1 className="text-3xl font-semibold text-gray-800 mb-4">
-                  Welcome to Learnbefore
-                </h1>
-                <p className="text-lg text-center text-gray-500 mb-8">
-                  Start discovering new words by typing in the input field
-                  below!
-                </p>
-              </div>
+            {messages === null ? null : messages.length === 0 ? (
+              <WelcomeMessage />
             ) : (
               messages.map((message, messageIndex) => (
                 <React.Fragment key={messageIndex}>
@@ -213,7 +178,7 @@ export const ChatPage: React.FC = () => {
               </Button>
               <input
                 ref={fileInputRef}
-                onChange={handleFileChange}
+                onChange={handleFileUpload}
                 type="file"
                 accept="image/jpeg, text/plain"
                 className="hidden"
@@ -246,23 +211,24 @@ const WordCard: React.FC<{ word: Word }> = ({ word }) => (
   </Card>
 )
 
-type IconProps = React.HTMLAttributes<SVGElement>
+const WelcomeMessage = () => (
+  <div className="flex flex-col items-center justify-center h-full text-center">
+    <h1 className="text-3xl font-semibold text-gray-800 mb-4">
+      Welcome to Learnbefore
+    </h1>
+    <p className="text-lg text-gray-500 mb-8">
+      Start discovering new words by typing in the input field below!
+    </p>
+  </div>
+)
 
-function PaperclipIcon(props: IconProps) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48" />
-    </svg>
-  )
+function useScrollToRef(
+  ref: React.RefObject<HTMLDivElement | null>,
+  dependency: unknown,
+) {
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.scrollIntoView({ behavior: "smooth" })
+    }
+  }, [dependency])
 }
