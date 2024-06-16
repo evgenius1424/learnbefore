@@ -1,4 +1,10 @@
-import React, { useEffect, useRef, useState } from "react"
+import React, {
+  ChangeEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react"
 import { AppShell } from "../components/app-shell"
 import { Message, Word } from "@repo/types/words.ts"
 import { Card, CardContent } from "@repo/ui/components/ui/card"
@@ -13,10 +19,15 @@ export const ChatPage: React.FC = () => {
   const [inputValue, setInputValue] = useState("")
   const [error, setError] = useState(null)
   const [sendInProgress, setSendInProgress] = useState(false)
-  const [fileUploadInProgress, setFileUploadInProgress] = useState(false)
   const [expandedMessages, setExpandedMessages] = useState<string[]>([])
-  const messagesEndRef = useRef<HTMLDivElement | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const messagesEndRef = useScrollToRef(messages)
+
+  const {
+    fileUploadInProgress,
+    fileInputRef,
+    handleFileUploadClick,
+    handleFileUpload,
+  } = useFileUpload(setInputValue)
 
   const toggleExpand = (messageId: string) => {
     if (expandedMessages.includes(messageId)) {
@@ -29,34 +40,12 @@ export const ChatPage: React.FC = () => {
   const isMessageExpanded = (message: Message) =>
     expandedMessages.includes(message.id)
 
-  const handleFileUploadClick = (e: React.MouseEvent) => {
-    e.preventDefault()
-    if (fileInputRef.current) {
-      fileInputRef.current.click()
-    }
-  }
-
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files?.length) {
-      return
-    }
-    try {
-      setFileUploadInProgress(true)
-      const text = await getTextFromFile(e.target.files[0])
-      setInputValue(text)
-    } finally {
-      setFileUploadInProgress(false)
-    }
-  }
-
   useEffect(() => {
     fetch("/api/chat")
       .then((res) => res.json())
       .then(setMessages)
       .catch(setError)
   }, [])
-
-  useScrollToRef(messagesEndRef, messages)
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -201,7 +190,7 @@ const WordCard: React.FC<{ word: Word }> = ({ word }) => (
       <div className="flex items-center space-x-4">
         <div>
           <p className="text-2xl text-center font-semibold text-gray-800">
-            {word.word}{" "}
+            {word.word}
             {word.translation?.length > 2 ? ` - ${word.translation}` : null}
           </p>
           <p className="text-sm text-center text-gray-500">{word.meaning}</p>
@@ -222,13 +211,41 @@ const WelcomeMessage = () => (
   </div>
 )
 
-function useScrollToRef(
-  ref: React.RefObject<HTMLDivElement | null>,
-  dependency: unknown,
-) {
-  useEffect(() => {
-    if (ref.current) {
-      ref.current.scrollIntoView({ behavior: "smooth" })
+const useFileUpload = (handleTextUpload: (text: string) => void) => {
+  const [fileUploadInProgress, setFileUploadInProgress] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleFileUploadClick = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
+    fileInputRef.current?.click()
+  }, [])
+
+  const handleFileUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.length) return
+    try {
+      setFileUploadInProgress(true)
+      const text = await getTextFromFile(e.target.files[0])
+      handleTextUpload(text)
+    } finally {
+      setFileUploadInProgress(false)
     }
-  }, [dependency])
+  }
+
+  return {
+    fileUploadInProgress,
+    fileInputRef,
+    handleFileUploadClick,
+    handleFileUpload,
+  }
+}
+
+const useScrollToRef = (dependency: unknown) => {
+  const ref = useRef<HTMLDivElement | null>(null)
+
+  useEffect(
+    () => ref.current?.scrollIntoView({ behavior: "smooth" }),
+    [dependency],
+  )
+
+  return ref
 }
