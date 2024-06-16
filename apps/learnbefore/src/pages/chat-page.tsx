@@ -13,6 +13,7 @@ import { Button } from "@ui/components/ui/button.tsx"
 import { PaperclipIcon } from "../icons/paperclip-icon.tsx"
 import { getTextFromFile } from "../helpers/get-text-from-file.ts"
 import { createMessageFetcher } from "../helpers/fetchers.ts"
+import { useTranslation } from "react-i18next"
 
 export const ChatPage: React.FC = () => {
   const [messages, setMessages] = useState<Message[] | null>(null)
@@ -21,6 +22,7 @@ export const ChatPage: React.FC = () => {
   const [sendInProgress, setSendInProgress] = useState(false)
   const [expandedMessages, setExpandedMessages] = useState<string[]>([])
   const messagesEndRef = useScrollToRef(messages)
+  const { t } = useTranslation()
 
   const {
     fileUploadInProgress,
@@ -127,8 +129,8 @@ export const ChatPage: React.FC = () => {
                             onClick={() => toggleExpand(message.id)}
                           >
                             {isMessageExpanded(message)
-                              ? "Show less"
-                              : "Show more"}
+                              ? t("Show less")
+                              : t("Show more")}
                           </button>
                         )}
                       </p>
@@ -152,7 +154,7 @@ export const ChatPage: React.FC = () => {
             <Input
               disabled={sendInProgress}
               className="flex-1"
-              placeholder="Type text to find words to learn..."
+              placeholder={t("Type text to find words to learn...")}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
             />
@@ -175,7 +177,7 @@ export const ChatPage: React.FC = () => {
               />
             </label>
             <Button disabled={sendInProgress} type="submit">
-              Send
+              {t("Send")}
             </Button>
           </div>
         </form>
@@ -200,16 +202,19 @@ const WordCard: React.FC<{ word: Word }> = ({ word }) => (
   </Card>
 )
 
-const WelcomeMessage = () => (
-  <div className="flex flex-col items-center justify-center h-full text-center">
-    <h1 className="text-3xl font-semibold text-gray-800 mb-4">
-      Welcome to Learnbefore
-    </h1>
-    <p className="text-lg text-gray-500 mb-8">
-      Start discovering new words by typing in the input field below!
-    </p>
-  </div>
-)
+const WelcomeMessage = () => {
+  const { t } = useTranslation()
+  return (
+    <div className="flex flex-col items-center justify-center h-full text-center">
+      <h1 className="text-3xl font-semibold text-gray-800 mb-4">
+        {t("Welcome to Learnbefore")}
+      </h1>
+      <p className="text-lg text-gray-500 mb-8">
+        {t("Start discovering new words by typing in the input field below!")}
+      </p>
+    </div>
+  )
+}
 
 const useFileUpload = (handleTextUpload: (text: string) => void) => {
   const [fileUploadInProgress, setFileUploadInProgress] = useState(false)

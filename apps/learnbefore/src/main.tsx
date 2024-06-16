@@ -3,6 +3,7 @@ import App from "./app.tsx"
 import "./../src/globals.css"
 import { ClerkProvider } from "@clerk/clerk-react"
 import React from "react"
+import "./i18n"
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 

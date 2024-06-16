@@ -13,9 +13,13 @@
     "@clerk/clerk-react": "^5.2.2",
     "@repo/ui": "workspace:*",
     "autoprefixer": "^10.4.19",
+    "i18next": "^23.11.5",
+    "i18next-browser-languagedetector": "^8.0.0",
+    "i18next-http-backend": "^2.5.2",
     "postcss": "^8.4.38",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-i18next": "^14.1.2",
     "swr": "^2.2.5",
     "tailwind": "^4.0.0",
     "tesseract.js": "^5.1.0"
