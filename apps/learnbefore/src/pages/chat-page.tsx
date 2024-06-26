@@ -1,20 +1,16 @@
-import React, {
-  ChangeEvent,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react"
+import React, { useEffect, useState } from "react"
 import { AppShell } from "../components/app-shell"
 import { Message, Word } from "@repo/types/words.ts"
 import { Card, CardContent } from "@repo/ui/components/ui/card"
 import { Input } from "@ui/components/ui/input.tsx"
 import { Button } from "@ui/components/ui/button.tsx"
 import { PaperclipIcon } from "../icons/paperclip-icon.tsx"
-import { getTextFromFile } from "../helpers/get-text-from-file.ts"
 import { createMessageFetcher } from "../helpers/fetchers.ts"
 import { useTranslation } from "react-i18next"
 import { fetchJson } from "../helpers/fetch-json.ts"
+import { useScrollToRef } from "../helpers/use-scroll-to-ref.ts"
+import { useTextFileUpload } from "../helpers/use-text-file-upload.ts"
+import { ChatWelcomeMessage } from "../components/chat-welcome-message.tsx"
 
 export const ChatPage: React.FC = () => {
   const [messages, setMessages] = useState<Message[] | null>(null)
@@ -30,7 +26,7 @@ export const ChatPage: React.FC = () => {
     fileInputRef,
     handleFileUploadClick,
     handleFileUpload,
-  } = useFileUpload(setInputValue)
+  } = useTextFileUpload(setInputValue)
 
   const toggleExpand = (messageId: string) => {
     if (expandedMessages.includes(messageId)) {
@@ -110,7 +106,7 @@ export const ChatPage: React.FC = () => {
         <div className="container flex flex-col h-full rounded-lg mx-auto pb-14">
           <div className="space-y-4 p-4">
             {messages === null ? null : messages.length === 0 ? (
-              <WelcomeMessage />
+              <ChatWelcomeMessage />
             ) : (
               messages.map((message, messageIndex) => (
                 <React.Fragment key={messageIndex}>
@@ -199,56 +195,3 @@ const WordCard: React.FC<{ word: Word }> = ({ word }) => (
     </CardContent>
   </Card>
 )
-
-const WelcomeMessage = () => {
-  const { t } = useTranslation()
-  return (
-    <div className="flex flex-col items-center justify-center h-full text-center">
-      <h1 className="text-3xl font-semibold text-gray-800 mb-4">
-        {t("Welcome to Learnbefore")}
-      </h1>
-      <p className="text-lg text-gray-500 mb-8">
-        {t("Start discovering new words by typing in the input field below!")}
-      </p>
-    </div>
-  )
-}
-
-const useFileUpload = (handleTextUpload: (text: string) => void) => {
-  const [fileUploadInProgress, setFileUploadInProgress] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-
-  const handleFileUploadClick = useCallback((e: React.MouseEvent) => {
-    e.preventDefault()
-    fileInputRef.current?.click()
-  }, [])
-
-  const handleFileUpload = async (e: ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files?.length) return
-    try {
-      setFileUploadInProgress(true)
-      const text = await getTextFromFile(e.target.files[0])
-      handleTextUpload(text)
-    } finally {
-      setFileUploadInProgress(false)
-    }
-  }
-
-  return {
-    fileUploadInProgress,
-    fileInputRef,
-    handleFileUploadClick,
-    handleFileUpload,
-  }
-}
-
-const useScrollToRef = (dependency: unknown) => {
-  const ref = useRef<HTMLDivElement | null>(null)
-
-  useEffect(
-    () => ref.current?.scrollIntoView({ behavior: "smooth" }),
-    [dependency],
-  )
-
-  return ref
-}
