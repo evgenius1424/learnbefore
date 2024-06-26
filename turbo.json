@@ -3,6 +3,11 @@
   "globalDependencies": [
     "**/.env.*local"
   ],
+  "globalEnv": [
+    "OPENAI_API_KEY",
+    "MONGO_CONNECTION_STRING",
+    "EXPRESS_PORT"
+  ],
   "tasks": {
     "build": {
       "dependsOn": [

@@ -24,6 +24,7 @@ export function startExpress(
       err: { stack: unknown },
       req: Request,
       res: Response,
+      // eslint-disable-next-line no-unused-vars
       next: NextFunction,
     ) => {
       console.error(err.stack)

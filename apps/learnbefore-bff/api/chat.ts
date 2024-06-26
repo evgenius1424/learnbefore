@@ -1,7 +1,7 @@
 import OpenAI from "openai"
 import { startExpress } from "../src/start-express"
 import { getWords } from "../src/get-words"
-import { Message, User, Word } from "../types"
+import { Message, User } from "../types"
 import { ClerkExpressRequireAuth } from "@clerk/clerk-sdk-node"
 import { Store } from "../src/store"
 import { splitText } from "../src/split-text"
@@ -10,7 +10,9 @@ import expressAsyncHandler from "express-async-handler"
 import { retryableGenerator } from "../src/retryable-generator"
 
 declare global {
+  // eslint-disable-next-line no-unused-vars
   namespace Express {
+    // eslint-disable-next-line no-unused-vars
     interface Request {
       auth: { userId: string }
     }
@@ -21,7 +23,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
 
-const app = startExpress(parseInt(process.env.PORT || "3000"))
+const app = startExpress(parseInt(process.env.EXPRESS_PORT || "3000"))
 
 const store = new Store(process.env.MONGO_CONNECTION_STRING!!)
 

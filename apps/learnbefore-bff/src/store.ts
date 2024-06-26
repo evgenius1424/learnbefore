@@ -4,6 +4,7 @@ import { Message, User, Word } from "../types"
 export class Store {
   private db: Db | undefined
 
+  // eslint-disable-next-line no-unused-vars
   constructor(private connectionString: string) {}
 
   public async getUserMessages(userId: string, limit = 10): Promise<Message[]> {

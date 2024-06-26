@@ -14,6 +14,7 @@ import { PaperclipIcon } from "../icons/paperclip-icon.tsx"
 import { getTextFromFile } from "../helpers/get-text-from-file.ts"
 import { createMessageFetcher } from "../helpers/fetchers.ts"
 import { useTranslation } from "react-i18next"
+import { fetchJson } from "../helpers/fetch-json.ts"
 
 export const ChatPage: React.FC = () => {
   const [messages, setMessages] = useState<Message[] | null>(null)
@@ -43,10 +44,7 @@ export const ChatPage: React.FC = () => {
     expandedMessages.includes(message.id)
 
   useEffect(() => {
-    fetch("/api/chat")
-      .then((res) => res.json())
-      .then(setMessages)
-      .catch(setError)
+    fetchJson("/api/chat").then(setMessages).catch(setError)
   }, [])
 
   const handleSend = async (e: React.FormEvent) => {
@@ -104,7 +102,7 @@ export const ChatPage: React.FC = () => {
 
     setInputValue("")
   }
-  if (error) return <div>Error occurred: {error}</div>
+  if (error) return <span>{JSON.stringify(error)}</span>
 
   return (
     <AppShell>

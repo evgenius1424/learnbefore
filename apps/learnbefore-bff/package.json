@@ -5,6 +5,7 @@
   "main": "dist/api/chat.js",
   "scripts": {
     "build": "npx tsc",
+    "lint": "eslint . --max-warnings 0",
     "preview": "node dist/api/chat.js",
     "dev": "nodemon api/chat.ts"
   },
