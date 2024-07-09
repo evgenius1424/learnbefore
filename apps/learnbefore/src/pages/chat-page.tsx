@@ -154,6 +154,7 @@ export const ChatPage: React.FC = () => {
             />
             <label>
               <Button
+                type="button"
                 variant="ghost"
                 size="icon"
                 onClick={handleFileUploadClick}
