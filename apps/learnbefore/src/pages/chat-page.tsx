@@ -148,7 +148,9 @@ export const ChatPage: React.FC = () => {
             <Input
               disabled={sendInProgress}
               className="flex-1"
-              placeholder={t("Type text to find words to learn...")}
+              placeholder={t(
+                "Type in a few sentences or upload a file to find words for learning...",
+              )}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
             />
