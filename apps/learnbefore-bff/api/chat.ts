@@ -44,7 +44,7 @@ app.get(
   expressAsyncHandler(async function (req, res) {
     try {
       const user = await getUser(req.auth.userId)
-      const messages = await store.getUserMessages(user.id, 5)
+      const messages = await store.getUserMessages(user.id, 1)
       res.status(200).json(messages)
     } catch (error) {
       res.status(500).json({ message: "Error fetching chat messages" })
