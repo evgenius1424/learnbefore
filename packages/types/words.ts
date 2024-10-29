@@ -10,6 +10,5 @@ export type Word = {
   word: string
   meaning: string
   translation: string
-  context: string
   languageCode: string
 }

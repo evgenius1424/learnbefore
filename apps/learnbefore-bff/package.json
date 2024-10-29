@@ -17,7 +17,7 @@
     "express": "^4.19.2",
     "express-async-handler": "^1.2.0",
     "mongodb": "^6.7.0",
-    "openai": "^4.48.1",
+    "openai": "^4.68.4",
     "vitest": "^1.6.0",
     "zod": "^3.23.8"
   },

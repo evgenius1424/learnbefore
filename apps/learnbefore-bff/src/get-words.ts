@@ -5,18 +5,19 @@ import { Word, wordSchema } from "../types"
 export async function* getWords(
   openAI: OpenAI,
   text: string,
+  translationLanguage: string = "Russian",
 ): AsyncGenerator<Word> {
   let data = ""
   for await (const part of await openAI.chat.completions.create({
-    model: "gpt-3.5-turbo",
+    model: "gpt-4o",
     stream: true,
     max_tokens: 4096,
     response_format: { type: "json_object" },
     messages: [
-      { role: "system", content: systemPrompt },
+      { role: "system", content: getPrompt(translationLanguage) },
       {
         role: "user",
-        content: getUserPrompt(text),
+        content: text,
       },
     ],
   })) {
@@ -45,26 +46,61 @@ export async function* getWords(
   }
 }
 
-const systemPrompt =
-  "Use only RFC8259 compliant compact JSON and help to extract big list of words from the text that the language learner is unlikely to know or that are crucial to the understanding of the text. Words should be converted to dictionary form. Duplicates, names of characters, persons or toponyms are not allowed." +
-  "Words that do not exist in the text are not allowed. Returns an empty response if the text contains no words. MUST keep the order of words as they appear in the text."
+function getPrompt(translationLanguage: string) {
+  return `Please analyze the input text to extract valuable vocabulary, prioritizing words in three tiers:
 
-function getUserPrompt(text: string, translationLanguage = "Russian") {
-  return `
-    You must extract 50 words from the text below which language learner likely do not know or need to know in order to understand the text. 
-    Please ensure the extracted words are diverse and relevant to the context of the text.
-    
-    Translation language is ${translationLanguage}.
-    
-    Example of list of words in JSON: 
+1. High-complexity words:
+   - Academic vocabulary (B1-C2 level)
+   - Technical and specialized terms
+   - Domain-specific terminology
+   - Scientific and professional jargon
+   - Abstract concepts
+   - Literary or archaic terms
+
+2. Medium-complexity words (B1-B2 level):
+   - Less common everyday verbs (e.g., blaze, scatter, dodge)
+   - Descriptive vocabulary (e.g., graceful, peculiar, vivid)
+   - Phrasal verbs beyond basics
+   - Nature and environment terms
+   - Emotion and behavior words
+   - Specific actions and processes
+   - Words with multiple meanings
+   - Common metaphorical usage
+   - Words that native speakers use but learners often don't know
+
+3. Contextually valuable words:
+   - Words crucial for understanding the text's meaning
+   - Topic-specific vocabulary
+   - Words with cultural significance
+   - Terms that often appear in media/news
+   - Words with tricky usage patterns
+   - Terms that often cause confusion for learners
+
+Processing rules:
+- Maintain original order of appearance
+- Convert to dictionary form
+- Remove duplicates while preserving first occurrence
+- Consider word frequency in general usage (roughly 3000-15000 range for medium complexity)
+- Include words that might seem simple to native speakers but are often unknown to learners
+
+Format output as JSON:
+{
+  "words": [
     {
-      words: [
-        "word": "Hello",                                      // The word itself.
-        "meaning": "A greeting or expression of goodwill.",   // The definition or meaning of the word.
-        "translation": "Здравствуйте",                        // Translation of the word.
-        "languageCode": "en",                                 // ISO 639 Language code indicating the language of the word (e.g., "en" for English).
-      ]
+      "word": "[Original word]",
+      "meaning": "[Definition in text language]",
+      "translation": "[${translationLanguage} translation]",
+      "languageCode": "[ISO 639-1 code]"
     }
-      
-    Text: ${text}`.trim()
+  ]
+}
+
+Additional guidelines:
+- Include words that appear in upper-intermediate textbooks
+- Keep terms that might not be extremely complex but are still challenging for learners
+- Consider including words that:
+  * Have subtle usage differences from their synonyms
+  * Are common in native speech but rare in learner vocabulary
+  * Represent concepts that might be familiar but whose specific term might not be
+  * Are frequently used in certain contexts but not necessarily in basic conversation`
 }
