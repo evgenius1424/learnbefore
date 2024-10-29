@@ -13,7 +13,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: `http://91.92.136.244:${PORT}`,
+        target: `http://localhost:${PORT}`,
         changeOrigin: true,
         ws: true,
       },

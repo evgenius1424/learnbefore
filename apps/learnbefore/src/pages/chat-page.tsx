@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react"
 import { AppShell } from "../components/app-shell"
 import { Message, Word } from "@repo/types/words.ts"
-import { Card, CardContent } from "@repo/ui/components/ui/card"
 import { Input } from "@ui/components/ui/input.tsx"
 import { Button } from "@ui/components/ui/button.tsx"
 import { PaperclipIcon } from "../icons/paperclip-icon.tsx"
@@ -11,6 +10,7 @@ import { fetchJson } from "../helpers/fetch-json.ts"
 import { useScrollToRef } from "../helpers/use-scroll-to-ref.ts"
 import { useTextFileUpload } from "../helpers/use-text-file-upload.ts"
 import { ChatWelcomeMessage } from "../components/chat-welcome-message.tsx"
+import { WordCard } from "../components/word-card.tsx"
 
 export const ChatPage: React.FC = () => {
   const [messages, setMessages] = useState<Message[] | null>(null)
@@ -132,7 +132,7 @@ export const ChatPage: React.FC = () => {
                   </div>
                   <div className="flex flex-wrap gap-2 justify-center w-full">
                     {message.words.map((word, wordIndex) => (
-                      <WordCard key={wordIndex} word={word} />
+                      <WordCard word={word} key={wordIndex} />
                     ))}
                   </div>
                 </React.Fragment>
@@ -182,19 +182,3 @@ export const ChatPage: React.FC = () => {
     </AppShell>
   )
 }
-
-const WordCard: React.FC<{ word: Word }> = ({ word }) => (
-  <Card className="bg-white shadow rounded-lg p-4">
-    <CardContent>
-      <div className="flex items-center space-x-4">
-        <div>
-          <p className="text-2xl text-center font-semibold text-gray-800">
-            {word.word}
-            {word.translation?.length > 2 ? ` - ${word.translation}` : null}
-          </p>
-          <p className="text-sm text-center text-gray-500">{word.meaning}</p>
-        </div>
-      </div>
-    </CardContent>
-  </Card>
-)
