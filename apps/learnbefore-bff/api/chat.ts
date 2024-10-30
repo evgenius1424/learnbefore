@@ -93,7 +93,7 @@ app.get(
 
     const message = await store.getMessage(messageId)
 
-    for (const chunk of splitText(message.text, 6000)) {
+    for (const chunk of splitText(message.text, 3000)) {
       for await (const word of retryableGenerator(() =>
         getWords(openai, chunk),
       )) {
