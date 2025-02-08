@@ -8,6 +8,7 @@ import { equalsIgnoringCase } from "../src/equals-ignoring-case"
 import { retryableGenerator } from "../src/retryable-generator"
 import { startExpress } from "../src/start-express"
 import { requireAuth } from "@clerk/express"
+import expressAsyncHandler from "express-async-handler"
 
 declare global {
   // eslint-disable-next-line no-unused-vars
@@ -33,59 +34,62 @@ store
     process.exit(1)
   })
 
-app.get("/api/chat", requireAuth(), async (req: Request, res: Response) => {
-  try {
+app.get(
+  "/api/chat",
+  requireAuth(),
+  expressAsyncHandler(async (req: Request, res: Response) => {
     if (!req.auth?.userId) {
-      return res.status(401).json({ message: "Unauthorized" })
+      res.status(401).json({ message: "Unauthorized" })
+      return
     }
 
     const user = await getUser(req.auth.userId)
     const messages = await store.getUserMessages(user.id, 1)
     res.status(200).json(messages)
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching chat messages" })
-  }
-})
+  }),
+)
 
 app.post(
   "/api/messages",
   requireAuth(),
-  async (req: Request, res: Response) => {
-    try {
-      if (!req.auth?.userId) {
-        return res.status(401).json({ message: "Unauthorized" })
-      }
-
-      const text = req.body.text
-      if (!text || typeof text !== "string") {
-        return res
-          .status(400)
-          .json({ message: "'text' parameter is missing or of wrong type." })
-      }
-
-      const user = await getUser(req.auth.userId)
-      const message: Message = await store.createMessage({
-        userId: user.id,
-        text,
-      })
-      res.json({ messageId: message.id })
-    } catch (error) {
-      res.status(500).json({ message: "Error creating message" })
+  expressAsyncHandler(async (req: Request, res: Response) => {
+    if (!req.auth?.userId) {
+      res.status(401).json({ message: "Unauthorized" })
+      return
     }
-  },
+
+    const text = req.body.text
+    if (!text || typeof text !== "string") {
+      res
+        .status(400)
+        .json({ message: "'text' parameter is missing or of wrong type." })
+      return
+    }
+
+    const user = await getUser(req.auth.userId)
+    const message: Message = await store.createMessage({
+      userId: user.id,
+      text,
+    })
+    res.json({ messageId: message.id })
+  }),
 )
 
-app.get("/api/words", requireAuth(), async (req: Request, res: Response) => {
-  try {
+app.get(
+  "/api/words",
+  requireAuth(),
+  expressAsyncHandler(async (req: Request, res: Response) => {
     if (!req.auth?.userId) {
-      return res.status(401).json({ message: "Unauthorized" })
+      res.status(401).json({ message: "Unauthorized" })
+      return
     }
 
     const messageId = req.query.messageId
     if (!messageId || typeof messageId !== "string") {
-      return res
-        .status(400)
-        .json({ message: "'messageId' parameter is missing or of wrong type." })
+      res.status(400).json({
+        message: "'messageId' parameter is missing or of wrong type.",
+      })
+      return
     }
 
     res.setHeader("Content-Type", "text/event-stream")
@@ -113,10 +117,8 @@ app.get("/api/words", requireAuth(), async (req: Request, res: Response) => {
     await store.updateMessageWords(message.id, message.words)
     res.write(`data: ${JSON.stringify(null)}\n\n`)
     res.flushHeaders()
-  } catch (error) {
-    res.status(500).json({ message: "Error processing words" })
-  }
-})
+  }),
+)
 
 async function getUser(userId: string) {
   if (cachedUsers[userId]) {

@@ -15,6 +15,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "express-async-handler": "^1.2.0",
     "mongodb": "^6.7.0",
     "openai": "^4.68.4",
     "vitest": "^1.6.0",
