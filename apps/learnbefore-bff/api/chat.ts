@@ -38,11 +38,6 @@ app.get(
   "/api/chat",
   requireAuth(),
   expressAsyncHandler(async (req: Request, res: Response) => {
-    if (!req.auth?.userId) {
-      res.status(401).json({ message: "Unauthorized" })
-      return
-    }
-
     const user = await getUser(req.auth.userId)
     const messages = await store.getUserMessages(user.id, 1)
     res.status(200).json(messages)
@@ -53,11 +48,6 @@ app.post(
   "/api/messages",
   requireAuth(),
   expressAsyncHandler(async (req: Request, res: Response) => {
-    if (!req.auth?.userId) {
-      res.status(401).json({ message: "Unauthorized" })
-      return
-    }
-
     const text = req.body.text
     if (!text || typeof text !== "string") {
       res
@@ -79,11 +69,6 @@ app.get(
   "/api/words",
   requireAuth(),
   expressAsyncHandler(async (req: Request, res: Response) => {
-    if (!req.auth?.userId) {
-      res.status(401).json({ message: "Unauthorized" })
-      return
-    }
-
     const messageId = req.query.messageId
     if (!messageId || typeof messageId !== "string") {
       res.status(400).json({
