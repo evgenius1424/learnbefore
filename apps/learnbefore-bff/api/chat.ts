@@ -1,13 +1,13 @@
+import { Request, Response } from "express"
 import OpenAI from "openai"
-import { startExpress } from "../src/start-express"
 import { getWords } from "../src/get-words"
 import { Message, User } from "../types"
-import { ClerkExpressRequireAuth } from "@clerk/clerk-sdk-node"
 import { Store } from "../src/store"
 import { splitText } from "../src/split-text"
 import { equalsIgnoringCase } from "../src/equals-ignoring-case"
-import expressAsyncHandler from "express-async-handler"
 import { retryableGenerator } from "../src/retryable-generator"
+import { startExpress } from "../src/start-express"
+import { requireAuth } from "@clerk/express"
 
 declare global {
   // eslint-disable-next-line no-unused-vars
@@ -19,71 +19,73 @@ declare global {
   }
 }
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
-
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 const app = startExpress(parseInt(process.env.EXPRESS_PORT || "3000"))
-
 const store = new Store(process.env.MONGO_CONNECTION_STRING!!)
 
 const cachedUsers: Record<string, User> = {}
+
 store
   .connect()
-  .then(() => {
-    console.log("Connected to the database")
-  })
+  .then(() => console.log("Connected to the database"))
   .catch((error) => {
     console.error("Failed to connect to the database", error)
     process.exit(1)
   })
 
-app.get(
-  "/api/chat",
-  ClerkExpressRequireAuth(),
-  expressAsyncHandler(async function (req, res) {
-    try {
-      const user = await getUser(req.auth.userId)
-      const messages = await store.getUserMessages(user.id, 1)
-      res.status(200).json(messages)
-    } catch (error) {
-      res.status(500).json({ message: "Error fetching chat messages" })
-    }
-  }),
-)
-
-app.post(
-  "/api/messages",
-  ClerkExpressRequireAuth(),
-  expressAsyncHandler(async (req, res) => {
-    const text = req.body.text
-    if (!text || typeof text !== "string") {
-      res
-        .status(400)
-        .json({ message: "'text' parameter is missing or of wrong type." })
-      return
+app.get("/api/chat", requireAuth(), async (req: Request, res: Response) => {
+  try {
+    if (!req.auth?.userId) {
+      return res.status(401).json({ message: "Unauthorized" })
     }
 
     const user = await getUser(req.auth.userId)
+    const messages = await store.getUserMessages(user.id, 1)
+    res.status(200).json(messages)
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching chat messages" })
+  }
+})
 
-    const message: Message = await store.createMessage({
-      userId: user.id,
-      text,
-    })
-    res.json({ messageId: message.id })
-  }),
+app.post(
+  "/api/messages",
+  requireAuth(),
+  async (req: Request, res: Response) => {
+    try {
+      if (!req.auth?.userId) {
+        return res.status(401).json({ message: "Unauthorized" })
+      }
+
+      const text = req.body.text
+      if (!text || typeof text !== "string") {
+        return res
+          .status(400)
+          .json({ message: "'text' parameter is missing or of wrong type." })
+      }
+
+      const user = await getUser(req.auth.userId)
+      const message: Message = await store.createMessage({
+        userId: user.id,
+        text,
+      })
+      res.json({ messageId: message.id })
+    } catch (error) {
+      res.status(500).json({ message: "Error creating message" })
+    }
+  },
 )
 
-app.get(
-  "/api/words",
-  ClerkExpressRequireAuth(),
-  expressAsyncHandler(async (req, res) => {
+app.get("/api/words", requireAuth(), async (req: Request, res: Response) => {
+  try {
+    if (!req.auth?.userId) {
+      return res.status(401).json({ message: "Unauthorized" })
+    }
+
     const messageId = req.query.messageId
     if (!messageId || typeof messageId !== "string") {
-      res
+      return res
         .status(400)
         .json({ message: "'messageId' parameter is missing or of wrong type." })
-      return
     }
 
     res.setHeader("Content-Type", "text/event-stream")
@@ -109,19 +111,17 @@ app.get(
     }
 
     await store.updateMessageWords(message.id, message.words)
-
     res.write(`data: ${JSON.stringify(null)}\n\n`)
     res.flushHeaders()
-  }),
-)
+  } catch (error) {
+    res.status(500).json({ message: "Error processing words" })
+  }
+})
 
 async function getUser(userId: string) {
-  const cachedUser = cachedUsers[userId]
-
-  if (cachedUser) {
-    return cachedUser
+  if (cachedUsers[userId]) {
+    return cachedUsers[userId]
   }
-
   const user = await store.findOrCreateUser(userId)
   cachedUsers[userId] = user
   return user
