@@ -9,9 +9,9 @@
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@turbo/gen": "^2.4.0",
-    "@types/eslint": "^8.56.12",
-    "@types/node": "^20.17.17",
+    "@types/eslint": "^8.56.10",
+    "@types/node": "^20.14.2",
     "eslint": "^8.57.1",
-    "typescript": "^5.7.3"
+    "typescript": "^5.4.5"
   }
 }
