@@ -29,11 +29,12 @@ export const ChatPage: React.FC = () => {
   } = useTextFileUpload(setInputValue)
 
   const toggleExpand = (messageId: string) => {
-    if (expandedMessages.includes(messageId)) {
-      setExpandedMessages((prev) => prev.filter((id) => id !== messageId))
-    } else {
-      setExpandedMessages((prev) => [...prev, messageId])
-    }
+    setExpandedMessages((prev) => {
+      const isExpanded = prev.includes(messageId)
+      return isExpanded
+        ? prev.filter((id) => id !== messageId)
+        : [...prev, messageId]
+    })
   }
 
   const isMessageExpanded = (message: Message) =>
@@ -112,22 +113,12 @@ export const ChatPage: React.FC = () => {
                 <React.Fragment key={messageIndex}>
                   <div className="flex items-start gap-2 w-full">
                     <div className="w-full rounded-lg bg-zinc-200 dark:bg-zinc-700 p-2 text-left">
-                      <p className="text-sm">
-                        {message.text.length > 1000 &&
-                        !isMessageExpanded(message)
-                          ? message.text.substring(0, 1000).trim() + "... "
-                          : message.text}
-                        {message.text.length > 1000 && (
-                          <button
-                            className="text-blue-500"
-                            onClick={() => toggleExpand(message.id)}
-                          >
-                            {isMessageExpanded(message)
-                              ? t("Show less")
-                              : t("Show more")}
-                          </button>
-                        )}
-                      </p>
+                      <MessageText
+                        text={message.text}
+                        highlightWords={message.words.map((word) => word.word)}
+                        isExpanded={isMessageExpanded(message)}
+                        toggleExpand={() => toggleExpand(message.id)}
+                      />
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2 justify-center w-full">
@@ -180,5 +171,46 @@ export const ChatPage: React.FC = () => {
         </form>
       </footer>
     </AppShell>
+  )
+}
+
+const MessageText: React.FC<{
+  text: string
+  highlightWords: string[]
+  isExpanded: boolean
+  toggleExpand: () => void
+}> = ({ text, highlightWords, isExpanded, toggleExpand }) => {
+  const MAX_LENGTH = 1000
+  const shouldTruncate = text.length > MAX_LENGTH
+
+  const displayedText =
+    shouldTruncate && !isExpanded
+      ? text.substring(0, MAX_LENGTH).trim() + "... "
+      : text
+
+  const parts = displayedText.split(
+    new RegExp(`(${highlightWords.join("|")})`, "gi"),
+  )
+
+  return (
+    <div className="text-sm">
+      {parts.map((part, index) => {
+        const isMatch = highlightWords.some(
+          (word) => word.toLowerCase() === part.toLowerCase(),
+        )
+        return isMatch ? (
+          <span key={index} className="bg-yellow-200 dark:bg-yellow-800">
+            {part}
+          </span>
+        ) : (
+          <span key={index}>{part}</span>
+        )
+      })}
+      {shouldTruncate && (
+        <button className="text-blue-500" onClick={toggleExpand}>
+          {isExpanded ? "Show less" : "Show more"}
+        </button>
+      )}
+    </div>
   )
 }
