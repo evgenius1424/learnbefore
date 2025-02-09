@@ -115,7 +115,7 @@ export const ChatPage: React.FC = () => {
                     <div className="w-full rounded-lg bg-zinc-200 dark:bg-zinc-700 p-2 text-left">
                       <MessageText
                         text={message.text}
-                        highlightWords={message.words.map((word) => word.word)}
+                        highlightWords={message.words}
                         isExpanded={isMessageExpanded(message)}
                         toggleExpand={() => toggleExpand(message.id)}
                       />
@@ -176,7 +176,7 @@ export const ChatPage: React.FC = () => {
 
 const MessageText: React.FC<{
   text: string
-  highlightWords: string[]
+  highlightWords: Word[]
   isExpanded: boolean
   toggleExpand: () => void
 }> = ({ text, highlightWords, isExpanded, toggleExpand }) => {
@@ -189,14 +189,14 @@ const MessageText: React.FC<{
       : text
 
   const parts = displayedText.split(
-    new RegExp(`(${highlightWords.join("|")})`, "gi"),
+    new RegExp(`(${highlightWords.map(({ word }) => word).join("|")})`, "gi"),
   )
 
   return (
     <div className="text-sm">
       {parts.map((part, index) => {
         const isMatch = highlightWords.some(
-          (word) => word.toLowerCase() === part.toLowerCase(),
+          ({ word }) => word.toLowerCase() === part.toLowerCase(),
         )
         return isMatch ? (
           <span key={index} className="bg-yellow-200 dark:bg-yellow-800">
