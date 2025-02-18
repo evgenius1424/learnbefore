@@ -19,8 +19,8 @@
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@turbo/gen": "^2.4.2",
-    "@types/eslint": "^8.56.10",
-    "@types/node": "^20.14.2",
+    "@types/eslint": "^8.56.12",
+    "@types/node": "^20.17.19",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "class-variance-authority": "^0.7.0",
@@ -31,6 +31,6 @@
     "tailwind-merge": "^2.3.0",
     "tailwindcss": "^3.4.3",
     "tailwindcss-animate": "^1.0.7",
-    "typescript": "^5.4.5"
+    "typescript": "^5.7.3"
   }
 }
