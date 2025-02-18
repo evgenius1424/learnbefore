@@ -9,8 +9,8 @@ importers:
   .:
     devDependencies:
       prettier:
-        specifier: ^3.3.3
-        version: 3.3.3
+        specifier: ^3.5.1
+        version: 3.5.1
       turbo:
         specifier: ^2.4.2
         version: 2.4.2
@@ -165,7 +165,7 @@ importers:
         version: 7.8.0(eslint@9.13.0(jiti@2.3.3))(typescript@5.4.5)
       '@vercel/style-guide':
         specifier: ^5.2.0
-        version: 5.2.0(eslint@9.13.0(jiti@2.3.3))(prettier@3.3.3)(typescript@5.4.5)
+        version: 5.2.0(eslint@9.13.0(jiti@2.3.3))(prettier@3.5.1)(typescript@5.4.5)
       eslint-config-prettier:
         specifier: ^9.1.0
         version: 9.1.0(eslint@9.13.0(jiti@2.3.3))
@@ -3756,8 +3756,8 @@ packages:
       prettier:
         optional: true
 
-  prettier@3.3.3:
-    resolution: {integrity: sha512-i2tDNA0O5IrMO757lfrdQZCc2jPNDVntV0m/+4whiDfWaTKfMNgR7Qz0NAeGz/nRqF4m5/6CLzbP4/liHt12Ew==}
+  prettier@3.5.1:
+    resolution: {integrity: sha512-hPpFQvHwL3Qv5AdRvBFMhnKo4tYxp0ReXiPn2bxkiohEX6mBeBwEpBSQTkD458RaaDKQMYSp4hX4UtfUTA5wDw==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -5938,7 +5938,7 @@ snapshots:
 
   '@ungap/structured-clone@1.2.0': {}
 
-  '@vercel/style-guide@5.2.0(eslint@9.13.0(jiti@2.3.3))(prettier@3.3.3)(typescript@5.4.5)':
+  '@vercel/style-guide@5.2.0(eslint@9.13.0(jiti@2.3.3))(prettier@3.5.1)(typescript@5.4.5)':
     dependencies:
       '@babel/core': 7.24.7
       '@babel/eslint-parser': 7.24.7(@babel/core@7.24.7)(eslint@9.13.0(jiti@2.3.3))
@@ -5958,10 +5958,10 @@ snapshots:
       eslint-plugin-testing-library: 6.2.2(eslint@9.13.0(jiti@2.3.3))(typescript@5.4.5)
       eslint-plugin-tsdoc: 0.2.17
       eslint-plugin-unicorn: 48.0.1(eslint@9.13.0(jiti@2.3.3))
-      prettier-plugin-packagejson: 2.5.0(prettier@3.3.3)
+      prettier-plugin-packagejson: 2.5.0(prettier@3.5.1)
     optionalDependencies:
       eslint: 9.13.0(jiti@2.3.3)
-      prettier: 3.3.3
+      prettier: 3.5.1
       typescript: 5.4.5
     transitivePeerDependencies:
       - eslint-import-resolver-node
@@ -8734,14 +8734,14 @@ snapshots:
 
   prelude-ls@1.2.1: {}
 
-  prettier-plugin-packagejson@2.5.0(prettier@3.3.3):
+  prettier-plugin-packagejson@2.5.0(prettier@3.5.1):
     dependencies:
       sort-package-json: 2.10.0
       synckit: 0.9.0
     optionalDependencies:
-      prettier: 3.3.3
+      prettier: 3.5.1
 
-  prettier@3.3.3: {}
+  prettier@3.5.1: {}
 
   pretty-format@29.7.0:
     dependencies:
