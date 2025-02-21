@@ -14,7 +14,7 @@
     "@repo/ui": "workspace:*",
     "autoprefixer": "^10.4.20",
     "i18next": "^23.16.8",
-    "i18next-browser-languagedetector": "^8.0.3",
+    "i18next-browser-languagedetector": "^8.0.4",
     "i18next-http-backend": "^2.7.3",
     "lucide-react": "^0.383.0",
     "postcss": "^8.4.38",
