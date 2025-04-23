@@ -1,6 +1,7 @@
 import { SignedIn, SignedOut, SignIn } from "@clerk/clerk-react"
 import { ChatPage } from "./pages/chat-page.tsx"
 import React from "react"
+import "@repo/ui/styles/globals.css"
 
 const App: React.FC = () => {
   return (

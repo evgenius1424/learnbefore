@@ -1,6 +1,5 @@
 import ReactDOM from "react-dom/client"
 import App from "./app.tsx"
-import "./../src/globals.css"
 import { ClerkProvider } from "@clerk/clerk-react"
 import React from "react"
 import "./i18n"

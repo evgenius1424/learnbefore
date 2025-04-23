@@ -11,9 +11,7 @@ import { requireAuth } from "@clerk/express"
 import expressAsyncHandler from "express-async-handler"
 
 declare global {
-  // eslint-disable-next-line no-unused-vars
   namespace Express {
-    // eslint-disable-next-line no-unused-vars
     interface Request {
       auth: { userId: string }
     }
@@ -22,7 +20,7 @@ declare global {
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 const app = startExpress(parseInt(process.env.EXPRESS_PORT || "3000"))
-const store = new Store(process.env.MONGO_CONNECTION_STRING!!)
+const store = new Store(process.env.MONGO_CONNECTION_STRING!)
 
 const cachedUsers: Record<string, User> = {}
 

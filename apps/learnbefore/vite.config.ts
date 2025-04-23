@@ -1,14 +1,20 @@
+// todo: take from properties
+const PORT = 3000
+
 import { defineConfig } from "vite"
 import react from "@vitejs/plugin-react"
 import path from "node:path"
 
-// todo: take from properties
-const PORT = 3000
-
-// https://vitejs.dev/config/
+// https://vite.dev/config/
 export default defineConfig({
-  build: {
-    target: "esnext",
+  plugins: [react()],
+  resolve: {
+    alias: {
+      "@repo/ui": path.resolve(__dirname, "../../packages/ui/src"),
+    },
+  },
+  css: {
+    postcss: path.resolve(__dirname, "./postcss.config.mjs"),
   },
   server: {
     proxy: {
@@ -17,12 +23,6 @@ export default defineConfig({
         changeOrigin: true,
         ws: true,
       },
-    },
-  },
-  plugins: [react()],
-  resolve: {
-    alias: {
-      "@ui": path.resolve(__dirname, "../../packages/ui/src"),
     },
   },
 })

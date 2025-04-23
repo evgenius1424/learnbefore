@@ -6,8 +6,8 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@ui/components/ui/card"
-import { Button } from "@ui/components/ui/button"
+} from "@repo/ui/components/card"
+import { Button } from "@repo/ui/components/button"
 import { Word } from "@repo/types/words.ts"
 
 type WordCardProps = {
