@@ -4,7 +4,6 @@ import { Message, User, Word } from "../types"
 export class Store {
   private db: Db | undefined
 
-   
   constructor(private connectionString: string) {}
 
   public async getUserMessages(userId: string, limit = 10): Promise<Message[]> {

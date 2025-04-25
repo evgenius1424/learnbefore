@@ -1,7 +1,6 @@
 {
   "name": "learnbefore-bff",
   "version": "1.0.0",
-  "type": "module",
   "description": "",
   "main": "dist/api/chat.js",
   "scripts": {
