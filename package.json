@@ -7,13 +7,15 @@
     "lint": "turbo lint",
     "volta:install": "curl https://get.volta.sh | bash",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "ui": "pnpm --filter @repo/ui ui"
+    "ui": "pnpm --filter @repo/ui ui",
+    "supabase:start": "supabase start"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "eslint": "^9.25.1",
     "prettier": "^3.5.3",
+    "supabase": "^2.22.6",
     "turbo": "^2.5.0",
     "typescript": "5.8.3"
   },
