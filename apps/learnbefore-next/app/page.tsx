@@ -7,30 +7,42 @@ import { useSession } from "@clerk/nextjs"
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
+const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
 export default function Page() {
   const [count, setCount] = useState(0)
   const { session } = useSession()
 
-  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-    accessToken: async () => {
-      console.log("Token requested")
-      session?.getToken().then((token) => {
-        console.log("Token received", token)
-      })
-      return session ? session.getToken() : null
-    }
-  })
+  const insertUserId = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("users")
+        .upsert({ clerk_user_id: userId }, { onConflict: "clerk_user_id" })
 
+      if (error) throw error
+      console.log("User inserted or updated:", data)
+    } catch (error) {
+      console.error("Error inserting user:", error)
+    }
+  }
   useEffect(() => {
     const fetchData = async () => {
       const { data, error } = await supabase.from("test").select("id")
       console.log(data)
     }
 
+    const createOrUpdateUser = async () => {
+      if (session) {
+        const userId = session.user.id
+        await insertUserId(userId) // Insert the user ID from Clerk
+      }
+    }
+
     if (session) {
       fetchData()
+      createOrUpdateUser()
     }
-  }, [session, supabase]) // Re-fetch when the session changes
+  }, [session])
 
   return (
     <main className="container mx-auto p-4">
