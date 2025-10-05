@@ -35,9 +35,22 @@ export default function Page() {
   const getSessionToken = async () => {
     if (session) {
       try {
-        const token = await session.getToken({ template: "supabase" })
-        console.log("🔑 Got Clerk session token:", token ? "✅" : "❌")
-        return token
+        // Try to get the supabase template token (silently fail if not configured)
+        try {
+          const token = await session.getToken({ template: "supabase" })
+          if (token) {
+            console.log("🔑 Got Supabase template token: ✅")
+            return token
+          }
+        } catch (templateError) {
+          // Silently handle template not found
+          console.log("🔄 Supabase JWT template not configured, using default token")
+        }
+
+        // Fallback: get the default token
+        const defaultToken = await session.getToken()
+        console.log("🔑 Got default Clerk token:", defaultToken ? "✅" : "❌")
+        return defaultToken
       } catch (error) {
         console.error("❌ Failed to get session token:", error)
         return null
