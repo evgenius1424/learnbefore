@@ -9,7 +9,12 @@
       "Bash(cp:*)",
       "Bash(npx pnpm supabase:status:*)",
       "Bash(npx pnpm:*)",
-      "Bash(npx supabase:*)"
+      "Bash(npx supabase:*)",
+      "Bash(pnpm add:*)",
+      "Bash(volta install:*)",
+      "Bash(pnpm run:*)",
+      "Bash(pnpm --filter learnbefore-next run lint)",
+      "Bash(pnpm --filter learnbefore-next run build)"
     ],
     "deny": [],
     "ask": []
