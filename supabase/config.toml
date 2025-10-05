@@ -273,7 +273,7 @@ enabled = false
 [auth.third_party.clerk]
 enabled = true
 # Obtain from https://clerk.com/setup/supabase
- domain = "busy-labrador-38.clerk.accounts.dev"
+domain = "busy-labrador-38.clerk.accounts.dev"
 
 [edge_runtime]
 enabled = true

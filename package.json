@@ -8,7 +8,14 @@
     "volta:install": "curl https://get.volta.sh | bash",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "ui": "pnpm --filter @repo/ui ui",
-    "supabase:start": "supabase start"
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "supabase:restart": "supabase stop && supabase start",
+    "supabase:reset": "supabase db reset",
+    "supabase:status": "supabase status",
+    "supabase:studio": "supabase studio",
+    "supabase:logs": "supabase logs api",
+    "supabase:gen-types": "supabase gen types typescript --local > apps/learnbefore-next/types/supabase.ts"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(supabase:*)",
+      "Bash(mkdir:*)",
+      "Bash(pnpm supabase:status:*)",
+      "Bash(cp:*)",
+      "Bash(npx pnpm supabase:status:*)",
+      "Bash(npx pnpm:*)",
+      "Bash(npx supabase:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -40,8 +40,15 @@ pnpm format
 # Add shadcn/ui components to the UI package
 pnpm ui
 
-# Start Supabase local development
-pnpm supabase:start
+# Supabase local development
+pnpm supabase:start      # Start local Supabase instance
+pnpm supabase:stop       # Stop local Supabase instance
+pnpm supabase:restart    # Restart local Supabase instance
+pnpm supabase:reset      # Reset database and apply migrations
+pnpm supabase:status     # Check status of local services
+pnpm supabase:studio     # Open Supabase Studio in browser
+pnpm supabase:logs       # View API server logs
+pnpm supabase:gen-types  # Generate TypeScript types from database schema
 ```
 
 ### Application-Specific Commands
@@ -102,3 +109,17 @@ Global environment variables (defined in turbo.json):
 - **Supabase** is used for the Next.js app's database needs
 - **MongoDB** is used by the Express.js backend
 - All apps share TypeScript and ESLint configurations from the packages
+
+## Supabase Local Development
+
+For detailed Supabase local setup instructions, see `SUPABASE_LOCAL_SETUP.md`. Quick start:
+
+1. Start local Supabase: `pnpm supabase:start`
+2. Access Studio at http://localhost:54323
+3. Use `.env.development` for local environment variables
+4. Generate types after schema changes: `pnpm supabase:gen-types`
+
+Local Supabase runs on:
+- API: http://127.0.0.1:54321
+- Studio: http://127.0.0.1:54323
+- Database: postgresql://postgres:postgres@127.0.0.1:54322/postgres
