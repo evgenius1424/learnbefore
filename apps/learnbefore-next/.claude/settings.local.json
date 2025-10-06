@@ -11,7 +11,8 @@
       "Read(//Users/evgenius1424/WebstormProjects/learnbefore/apps/learnbefore-next/node_modules/ai/**)",
       "Bash(pnpm lint:*)",
       "Read(//Users/evgenius1424/WebstormProjects/learnbefore/**)",
-      "Bash(supabase db reset:*)"
+      "Bash(supabase db reset:*)",
+      "Bash(lsof:*)"
     ],
     "deny": [],
     "ask": []

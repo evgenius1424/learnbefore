@@ -105,6 +105,10 @@ export async function POST(request: NextRequest) {
     return new Response('Message not found', { status: 404 })
   }
 
+  if (!process.env.OPENAI_API_KEY) {
+    return new Response('OpenAI API key not configured', { status: 500 })
+  }
+
   try {
     const result = streamObject({
       model: openai('gpt-4o'),
@@ -133,6 +137,6 @@ Text to analyze: ${message.text}`,
     return result.toTextStreamResponse()
   } catch (error) {
     console.error('Error processing words:', error)
-    return new Response('Internal server error', { status: 500 })
+    return new Response(`Internal server error: ${error instanceof Error ? error.message : 'Unknown error'}`, { status: 500 })
   }
 }
