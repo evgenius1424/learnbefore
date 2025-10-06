@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/evgenius1424/WebstormProjects/learnbefore/apps/learnbefore/**)",
+      "Read(//Users/evgenius1424/WebstormProjects/learnbefore/apps/learnbefore-bff/**)",
+      "Bash(pnpm add:*)",
+      "Read(//Users/evgenius1424/WebstormProjects/learnbefore/packages/types/**)",
+      "Read(//Users/evgenius1424/WebstormProjects/learnbefore/supabase/migrations/**)",
+      "Bash(pnpm typecheck:*)",
+      "Read(//Users/evgenius1424/WebstormProjects/learnbefore/node_modules/.pnpm/ai@5.0.60_zod@4.1.11/node_modules/ai/**)",
+      "Read(//Users/evgenius1424/WebstormProjects/learnbefore/apps/learnbefore-next/node_modules/ai/**)",
+      "Bash(pnpm lint:*)",
+      "Read(//Users/evgenius1424/WebstormProjects/learnbefore/**)",
+      "Bash(supabase db reset:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

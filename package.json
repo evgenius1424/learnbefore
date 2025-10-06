@@ -15,7 +15,8 @@
     "supabase:status": "supabase status",
     "supabase:studio": "supabase studio",
     "supabase:logs": "supabase logs api",
-    "supabase:gen-types": "supabase gen types typescript --local > apps/learnbefore-next/types/supabase.ts"
+    "supabase:gen-types": "supabase gen types typescript --local > apps/learnbefore-next/types/supabase.ts",
+    "supabase:migrate": "supabase db reset --local"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

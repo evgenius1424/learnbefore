@@ -14,7 +14,11 @@
       "Bash(volta install:*)",
       "Bash(pnpm run:*)",
       "Bash(pnpm --filter learnbefore-next run lint)",
-      "Bash(pnpm --filter learnbefore-next run build)"
+      "Bash(pnpm --filter learnbefore-next run build)",
+      "Bash(pnpm -w run supabase:status)",
+      "Bash(pnpm -w run supabase:reset)",
+      "Bash(pnpm -w run supabase:studio)",
+      "Bash(psql:*)"
     ],
     "deny": [],
     "ask": []

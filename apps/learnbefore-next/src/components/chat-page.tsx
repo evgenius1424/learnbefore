@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next"
 import { useScrollToRef } from "../helpers/use-scroll-to-ref"
 import { useTextFileUpload } from "../helpers/use-text-file-upload"
 import { ChatWelcomeMessage } from "./chat-welcome-message"
-import { WordCard } from "./word-card"
+import { StreamingMessage } from "./streaming-message"
 import { createClient } from "@supabase/supabase-js"
 import { useSession } from "@clerk/nextjs"
 
@@ -57,6 +57,20 @@ export const ChatPage: React.FC = () => {
   const isMessageExpanded = (message: Message) =>
     expandedMessages.includes(message.id)
 
+  const handleWordsUpdate = (messageId: string, words: Word[]) => {
+    setMessages((prev = []) => {
+      return (prev || []).map((message) =>
+        message.id === messageId
+          ? { ...message, words }
+          : message
+      )
+    })
+  }
+
+  const handleStreamingComplete = () => {
+    setSendInProgress(false)
+  }
+
   useEffect(() => {
     const getSessionToken = async () => {
       if (session) {
@@ -84,7 +98,18 @@ export const ChatPage: React.FC = () => {
 
         const { data, error } = await supabase
           .from("messages")
-          .select("*")
+          .select(`
+            id,
+            user_id,
+            text,
+            timestamp,
+            words (
+              word,
+              meaning,
+              translation,
+              language_code
+            )
+          `)
           .order("timestamp", { ascending: true })
 
         if (error) {
@@ -99,12 +124,21 @@ export const ChatPage: React.FC = () => {
           return
         }
 
-        // Add empty words array to each message for now
-        const messagesWithWords = (data || []).map(message => ({
-          ...message,
-          words: [] as Word[]
+        // Transform the data to match the expected format
+        const transformedMessages = (data || []).map(message => ({
+          id: message.id,
+          userId: message.user_id,
+          text: message.text,
+          timestamp: message.timestamp,
+          words: message.words.map((word: { word: string; meaning: string; translation: string; language_code: string }) => ({
+            word: word.word,
+            meaning: word.meaning,
+            translation: word.translation,
+            languageCode: word.language_code
+          }))
         }))
-        setMessages(messagesWithWords)
+
+        setMessages(transformedMessages)
       } catch (err) {
         console.error("Error in loadMessages:", err)
         // If there's a connection issue, start with empty state
@@ -178,23 +212,19 @@ export const ChatPage: React.FC = () => {
         return
       }
 
-      // TODO: Replace this with actual AI integration for word analysis
-      // For now, we'll simulate the word processing
-      const simulatedWords: Word[] = []
-
       // Update the optimistic message with the real message from database
       setMessages((prev = []) => {
         return (prev || []).map((message) =>
           message.id === optimisticMessage.id
-            ? { ...messageData, words: simulatedWords }
+            ? { ...messageData, words: [] }
             : message
         )
       })
 
     } catch (error) {
       console.error("Error in handleSend:", error)
-    } finally {
       setSendInProgress(false)
+    } finally {
       setInputValue("")
     }
   }
@@ -210,23 +240,14 @@ export const ChatPage: React.FC = () => {
               <ChatWelcomeMessage />
             ) : (
               messages.map((message, messageIndex) => (
-                <React.Fragment key={message.id || messageIndex}>
-                  <div className="flex items-start gap-2 w-full">
-                    <div className="w-full rounded-lg bg-zinc-200 dark:bg-zinc-700 p-2 text-left">
-                      <MessageText
-                        text={message.text}
-                        highlightWords={message.words}
-                        isExpanded={isMessageExpanded(message)}
-                        toggleExpand={() => toggleExpand(message.id)}
-                      />
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-2 justify-center w-full">
-                    {message.words.map((word, wordIndex) => (
-                      <WordCard word={word} key={wordIndex} />
-                    ))}
-                  </div>
-                </React.Fragment>
+                <StreamingMessage
+                  key={message.id || messageIndex}
+                  message={message}
+                  onWordsUpdate={handleWordsUpdate}
+                  onComplete={handleStreamingComplete}
+                  isExpanded={isMessageExpanded(message)}
+                  toggleExpand={() => toggleExpand(message.id)}
+                />
               ))
             )}
             <div ref={messagesEndRef}></div>
@@ -274,43 +295,3 @@ export const ChatPage: React.FC = () => {
   )
 }
 
-const MessageText: React.FC<{
-  text: string
-  highlightWords: Word[]
-  isExpanded: boolean
-  toggleExpand: () => void
-}> = ({ text, highlightWords, isExpanded, toggleExpand }) => {
-  const MAX_LENGTH = 1000
-  const shouldTruncate = text.length > MAX_LENGTH
-
-  const displayedText =
-    shouldTruncate && !isExpanded
-      ? text.substring(0, MAX_LENGTH).trim() + "... "
-      : text
-
-  const parts = displayedText.split(
-    new RegExp(`(${highlightWords.map(({ word }) => word).join("|")})`, "gi"),
-  )
-
-  return (
-    <div className="text-sm">
-      {parts.map((part, index) => {
-        const isMatch = highlightWords.some(
-          ({ word }) => word.toLowerCase() === part.toLowerCase(),
-        )
-        return isMatch ? (
-          <span key={index} className="bg-yellow-200 dark:bg-yellow-800">
-            {part}
-          </span>
-        ) : (
-          <span key={index}>{part}</span>
-        )
-      })}
-      {shouldTruncate && (
-        <button className="text-blue-500" onClick={toggleExpand}>
-          {isExpanded ? "Show less" : "Show more"}
-        </button>
-      )}
-    </div>
-  )
-}
