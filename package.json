@@ -13,11 +13,11 @@
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
-    "eslint": "^9.25.1",
-    "prettier": "^3.5.3",
-    "supabase": "^2.22.6",
-    "turbo": "^2.5.0",
-    "typescript": "5.8.3"
+    "eslint": "^9.39.2",
+    "prettier": "^3.7.4",
+    "supabase": "^2.70.5",
+    "turbo": "^2.7.2",
+    "typescript": "5.9.3"
   },
   "volta": {
     "node": "22.2.0"
